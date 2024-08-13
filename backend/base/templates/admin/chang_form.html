@@ -1,0 +1,26 @@
+<!-- base/templates/admin/change_form.html -->
+{% extends "admin/change_form.html" %} {% block submit_buttons_bottom %}
+<button type="submit" class="default" name="_save">Subir Nómina</button>
+<div id="progress-bar-container" style="display: none; margin-top: 20px">
+  <label for="progress-bar">Subiendo nómina...</label>
+  <progress id="progress-bar" value="0" max="100"></progress>
+</div>
+{% endblock %} {% block extrahead %} {{ block.super }}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
+    form.addEventListener("submit", function () {
+      document.querySelector("#progress-bar-container").style.display = "block";
+      const progressBar = document.querySelector("#progress-bar");
+      let progress = 0;
+      const interval = setInterval(function () {
+        progress += 10;
+        progressBar.value = progress;
+        if (progress >= 100) {
+          clearInterval(interval);
+        }
+      }, 500);
+    });
+  });
+</script>
+{% endblock %}
