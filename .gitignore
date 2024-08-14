@@ -23,4 +23,8 @@ static/
 .vscode/
 
 # Otros
+<<<<<<< HEAD
 .DS_Store
+=======
+.DS_Store
+>>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce

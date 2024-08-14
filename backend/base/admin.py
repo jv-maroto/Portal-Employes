@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Profile, Nomina, Post
+from .models import Post, PostView, Nomina
 from ckeditor.widgets import CKEditorWidget
 from django.contrib.admin import AdminSite
 
@@ -32,9 +32,15 @@ class NominaAdmin(admin.ModelAdmin):
     list_per_page = 20
 
     def save_model(self, request, obj, form, change):
+        # Asegúrate de que el user_id se establezca si no está presente
+        if not obj.user_id:
+            obj.user_id = request.user.id  # Usa el ID del usuario
+
+        # Guarda el objeto para que se cree la instancia en la base de datos
         super().save_model(request, obj, form, change)
-        # Procesar el PDF antes de guardar
-        obj.process_pdf()  # Asigna `year` y `month`
+
+        # Luego, procesa el PDF
+        obj.process_pdf()
 
     def get_form(self, request, obj=None, **kwargs):
         # Especifica el formulario a utilizar
@@ -75,11 +81,20 @@ class PostAdmin(admin.ModelAdmin):
 
 
 class PostAdminSite(AdminSite):
-    site_header = 'Administración de Posts'
-    site_title = 'Administración de Posts'
+    site_header = 'Sagrera Canarias Administración de Noticias'
+    site_title = 'Sagrera Canarias Administración de Noticias'
     index_title = 'Bienvenido a la administración de posts'
 
 
+class PostViewAdmin(admin.ModelAdmin):
+    list_display = ('post', 'user', 'viewed_at')
+    readonly_fields = ('post', 'user', 'viewed_at')
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+admin.site.register(PostView, PostViewAdmin)
 admin.site.register(Nomina, NominaAdmin)
 post_admin_site = PostAdminSite(name='post_admin')
 post_admin_site.register(Post, PostAdmin)

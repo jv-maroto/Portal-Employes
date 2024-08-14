@@ -1,11 +1,13 @@
-# backend/myapp/views.py
-
 from django.contrib.auth.models import User
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, viewsets
-from .models import Nomina
+from base.models import Post, PostView, Nomina
 from .serializer import NominaSerializer
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from django.contrib.auth.decorators import user_passes_test
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
 
 class NominaViewSet(viewsets.ModelViewSet):
@@ -51,3 +53,49 @@ def reset_password(request):
         return Response({'message': 'Password updated successfully.'}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'message': 'DNI not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def register_post_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    PostView.objects.get_or_create(post=post, user=request.user)
+    return Response({'status': 'viewed'})
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def get_post_views(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    views = PostView.objects.filter(post=post)
+    data = [{'first_name': view.user.profile.first_name,
+             'last_name': view.user.profile.last_name, 'viewed_at': view.viewed_at} for view in views]
+    return Response(data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def post_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    PostView.objects.get_or_create(post=post, user=request.user)
+    return JsonResponse({'status': 'viewed'})
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def post_views_list(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    views = PostView.objects.filter(post=post)
+    data = [{'username': view.user.username, 'viewed_at': view.viewed_at}
+            for view in views]
+    return JsonResponse(data, safe=False)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_profile(request):
+    user = request.user
+    return Response({
+        'username': user.username,
+        'is_superuser': user.is_superuser,
+    })

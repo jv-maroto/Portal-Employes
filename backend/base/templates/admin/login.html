@@ -1,0 +1,15 @@
+{% extends "admin/login.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="text-center mb-4">
+                </div>
+                {{ block.super }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -9,12 +9,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class NominaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Nomina
-        fields = ['user', 'year', 'month', 'file']
-
-
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(many=False, read_only=True)
 
@@ -27,6 +21,12 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = '__all__'
+
+
+class NominaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Nomina
+        fields = ['user', 'year', 'month', 'file']
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
