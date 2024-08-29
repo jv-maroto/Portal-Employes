@@ -23,9 +23,9 @@ class PostSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class NominaSerializer(serializers.ModelSerializer):
+class PdfFileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Nomina
+        model = PdfFile
         fields = ['user', 'year', 'month', 'file']
 
 

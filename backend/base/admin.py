@@ -1,8 +1,12 @@
 from django.contrib import admin
 from django import forms
-from .models import Post, PostView, Nomina
-from ckeditor.widgets import CKEditorWidget
+from .models import Post, PostView, PdfFile  # Cambié Nomina por PdfFile
 from django.contrib.admin import AdminSite
+from ckeditor.widgets import CKEditorWidget
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class PostAdminForm(forms.ModelForm):
@@ -14,53 +18,53 @@ class PostAdminForm(forms.ModelForm):
         fields = ['title', 'summary', 'content', 'image', 'pdf']
 
 
-class NominaUploadForm(forms.ModelForm):
+class PdfFileUploadForm(forms.ModelForm):
     class Meta:
-        model = Nomina
-        fields = ['file']  # Solo mostramos el campo para subir el archivo PDF
+        model = PdfFile
+        fields = ['file', 'month', 'year']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['file'].label = "Seleccionar archivo PDF"
+        self.fields['month'].label = "Mes"
+        self.fields['year'].label = "Año"
 
 
-class NominaAdmin(admin.ModelAdmin):
-    form = NominaUploadForm
+class PdfFileAdmin(admin.ModelAdmin):  # Renombrado desde NominaAdmin
+    form = PdfFileUploadForm  # Cambié NominaUploadForm por PdfFileUploadForm
     list_display = ('user', 'year', 'month')
     search_fields = ['user__username', 'user__profile__dni']
     list_filter = ('year', 'month')
     list_per_page = 20
 
     def save_model(self, request, obj, form, change):
-        # Asegúrate de que el user_id se establezca si no está presente
-        if not obj.user_id:
-            obj.user_id = request.user.id  # Usa el ID del usuario
+        logger.debug(f"Antes de guardar el archivo PDF: {obj}")
 
-        # Guarda el objeto para que se cree la instancia en la base de datos
+        # Primero guarda el archivo PDF
         super().save_model(request, obj, form, change)
 
-        # Luego, procesa el PDF
-        obj.process_pdf()
+        # Luego procesa el archivo PDF
+        try:
+            obj.process_pdf_and_save()
+            logger.debug("PDF procesado y dividido exitosamente")
+        except Exception as e:
+            logger.error(f"Error al procesar el PDF: {e}")
 
     def get_form(self, request, obj=None, **kwargs):
-        # Especifica el formulario a utilizar
-        kwargs['form'] = NominaUploadForm
+        kwargs['form'] = PdfFileUploadForm  # Ajustado para PdfFile
         return super().get_form(request, obj, **kwargs)
 
     def add_view(self, request, form_url='', extra_context=None):
-        # Cambia el título en la vista de agregar para mayor claridad
         extra_context = extra_context or {}
-        extra_context['title'] = 'Subir archivo PDF para dividir en nóminas'
-        return super(NominaAdmin, self).add_view(request, form_url, extra_context=extra_context)
+        extra_context['title'] = 'Subir archivo PDF para dividir en páginas'
+        return super(PdfFileAdmin, self).add_view(request, form_url, extra_context=extra_context)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        # Modifica la vista de cambio si es necesario
         extra_context = extra_context or {}
-        extra_context['title'] = 'Modificar archivo PDF o detalles de nómina'
+        extra_context['title'] = 'Modificar archivo PDF o detalles'
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     class Media:
-        # Incluir el JS y CSS para la barra de progreso si es necesario
         js = ('admin/js/custom_admin.js',)
         css = {'all': ('admin/css/custom_admin.css',)}
 
@@ -72,11 +76,7 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ('title', 'content', 'summary')
 
     class Media:
-        css = {
-            # Incluye tu archivo CSS de Bootstrap
-            'all': ('css/bootstrap.min.css',)
-        }
-        # Incluye tu archivo JS de Bootstrap
+        css = {'all': ('css/bootstrap.min.css',)}
         js = ('js/bootstrap.bundle.min.js',)
 
 
@@ -84,6 +84,10 @@ class PostAdminSite(AdminSite):
     site_header = 'Sagrera Canarias Administración de Noticias'
     site_title = 'Sagrera Canarias Administración de Noticias'
     index_title = 'Bienvenido a la administración de posts'
+
+
+post_admin_site = PostAdminSite(name='post_admin')
+post_admin_site.register(Post, PostAdmin)
 
 
 class PostViewAdmin(admin.ModelAdmin):
@@ -95,6 +99,4 @@ class PostViewAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PostView, PostViewAdmin)
-admin.site.register(Nomina, NominaAdmin)
-post_admin_site = PostAdminSite(name='post_admin')
-post_admin_site.register(Post, PostAdmin)
+admin.site.register(PdfFile, PdfFileAdmin)  # Renombrado desde NominaAdmin

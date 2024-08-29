@@ -3,15 +3,15 @@ from django.urls import path, include
 from . import views
 from django.conf import settings
 from rest_framework.routers import DefaultRouter
-from base.views import NominaViewSet
+from base.views import PdfFileViewSet
 from django.conf.urls.static import static
 from .views import MyTokenObtainPairView, post_list, post_detail, register_post_view, get_post_views, get_profile
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
-# Crear un DefaultRouter y registrar el NominaViewSet
+# Crear un DefaultRouter y registrar
 router = DefaultRouter()
-router.register(r'nominas', NominaViewSet)
+router.register(r'Nominas', PdfFileViewSet)
 urlpatterns = [
     path('profile/', views.get_profile),
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),

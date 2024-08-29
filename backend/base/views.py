@@ -2,17 +2,17 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, viewsets
-from base.models import Post, PostView, Nomina
-from .serializer import NominaSerializer
+from base.models import Post, PostView, PdfFile
+from .serializer import PdfFileSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.contrib.auth.decorators import user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 
-class NominaViewSet(viewsets.ModelViewSet):
-    queryset = Nomina.objects.all()
-    serializer_class = NominaSerializer
+class PdfFileViewSet(viewsets.ModelViewSet):
+    queryset = PdfFile.objects.all()
+    serializer_class = PdfFileSerializer
 
 
 @api_view(['POST'])
