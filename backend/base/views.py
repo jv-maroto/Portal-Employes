@@ -15,6 +15,15 @@ class PdfFileViewSet(viewsets.ModelViewSet):
     serializer_class = PdfFileSerializer
 
 
+def years_nominas(request):
+    # if request.user.is_authenticated:
+    anos = PdfFile.objects.filter(user=request.user).values_list(
+        'year', flat=True).distinct()
+    return JsonResponse(list(anos), safe=False)
+    # else:
+    # return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+
 @api_view(['POST'])
 def verify_dni(request):
     dni = request.data.get('dni')

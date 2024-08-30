@@ -5,7 +5,7 @@ from django.conf import settings
 from rest_framework.routers import DefaultRouter
 from base.views import PdfFileViewSet
 from django.conf.urls.static import static
-from .views import MyTokenObtainPairView, post_list, post_detail, register_post_view, get_post_views, get_profile
+from .views import MyTokenObtainPairView, post_list, post_detail, register_post_view, get_post_views, get_profile, years_nominas
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
@@ -25,6 +25,7 @@ urlpatterns = [
          get_post_views, name='get_post_views'),
     path('grappelli/', include('grappelli.urls')),
     path('', include(router.urls)),
+    path('api/years-nominas/', years_nominas, name='years_nominas'),
 
 ]
 if settings.DEBUG:

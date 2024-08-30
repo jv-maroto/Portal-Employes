@@ -82,6 +82,48 @@ class PdfFile(models.Model):
             # Eliminar el registro de la base de datos si no cumple con la regla
             self.delete()
 
+    @staticmethod
+    def process_and_save_unregistered_pdfs():
+        """Procesa y guarda todos los PDFs no registrados en la carpeta 'media'."""
+        media_path = os.path.join('media')
+        for root, dirs, files in os.walk(media_path):
+            for file in files:
+                if file.endswith('.pdf'):
+                    file_path = os.path.join(root, file)
+                    # Verificar si el archivo ya está en la base de datos
+                    if not PdfFile.objects.filter(file=os.path.basename(file_path)).exists():
+                        logger.debug(
+                            f"Procesando archivo no registrado: {file_path}")
+
+                        # Asumimos que los archivos tienen el formato 'dniX_mes_año.pdf'
+                        try:
+                            dni, mes, año = file.split('_')[0], file.split(
+                                '_')[1], file.split('_')[2].split('.')[0]
+                        except IndexError:
+                            logger.error(
+                                f"Formato de archivo incorrecto: {file}")
+                            continue
+
+                        archivos_divididos = dividir_pdf(
+                            file_path, root, mes, año)
+                        archivos_renombrados = renombrar_con_dni(
+                            archivos_divididos, root, mes, año)
+
+                        if archivos_divididos:
+                            # Crear nuevos registros en la base de datos para cada archivo dividido
+                            for archivo in archivos_renombrados:
+                                dni = archivo.split('_')[0].strip()
+                                usuario = User.objects.filter(
+                                    username__iexact=dni).first()
+                                # Verificar si el nombre del archivo cumple con la regla 'dniX_mes_año.pdf'
+                                if f"_{mes}_{año}.pdf" in archivo:
+                                    PdfFile.objects.create(
+                                        user=usuario if usuario else None,
+                                        year=int(año),
+                                        month=mes,
+                                        file=os.path.join('media', archivo)
+                                    )
+
 
 def dividir_pdf(pdf_file, output_folder, mes, año):
     """ Divide el PDF en páginas individuales y elimina el archivo original.

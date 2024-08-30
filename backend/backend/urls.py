@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from base.admin import post_admin_site
-from base.views import register_user, verify_dni, reset_password, register_post_view, get_post_views, get_profile
+from base.views import register_user, verify_dni, reset_password, register_post_view, get_post_views, get_profile, years_nominas
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('base.api.urls')),
@@ -17,6 +17,8 @@ urlpatterns = [
     path('post-admin/', post_admin_site.urls),
     path('api/profile/', get_profile, name='get_profile'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('api/years-nominas/', years_nominas, name='years_nominas'),
+
 
 ]
 

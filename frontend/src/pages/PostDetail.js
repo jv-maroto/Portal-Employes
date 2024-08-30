@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-import React, { useEffect, useState, useRef } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import axios from 'axios';
-import { BsBoxArrowRight } from 'react-icons/bs';
-import '../static/css/PostDetail.css';  // Importa tu archivo CSS personalizado
-
-function PostDetail() {
-  const { id } = useParams();
-=======
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -19,7 +9,6 @@ import AuthContext from '../context/AuthContext';  // Asegúrate de importar tu 
 function PostDetail() {
   const { id } = useParams();
   const { authTokens } = useContext(AuthContext);  // Obtenemos los tokens del contexto
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,11 +19,6 @@ function PostDetail() {
   useEffect(() => {
     axios.get(`http://localhost:8000/api/posts/${id}/`)
       .then(response => {
-<<<<<<< HEAD
-        console.log("Datos del post recibidos:", response.data);  // Agrega este log para verificar los datos
-        setPost(response.data);
-        setLoading(false);
-=======
         console.log("Datos del post recibidos:", response.data);
         setPost(response.data);
         setLoading(false);
@@ -47,18 +31,13 @@ function PostDetail() {
         })
         .then(res => console.log(res.data))
         .catch(err => console.error("Error al registrar la visualización:", err));
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
       })
       .catch(error => {
         console.error("Hubo un error al obtener el post:", error);
         setError("Hubo un error al obtener el post. Por favor, inténtalo de nuevo más tarde.");
         setLoading(false);
       });
-<<<<<<< HEAD
-  }, [id]);
-=======
   }, [id, authTokens]);
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
 
   useEffect(() => {
     if (containerRef.current) {
@@ -66,8 +45,6 @@ function PostDetail() {
     }
   }, [post]);
 
-<<<<<<< HEAD
-=======
   useEffect(() => {
     if (post) {
       const contentContainer = containerRef.current.querySelector('.post-detail');
@@ -80,16 +57,11 @@ function PostDetail() {
     }
   }, [post]);
 
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
   const smoothScroll = (step) => {
     const startPosition = containerRef.current.scrollTop;
     const targetPosition = startPosition + step;
     const distance = step;
-<<<<<<< HEAD
-    const duration = 100; // Duración del desplazamiento en milisegundos
-=======
     const duration = 100;
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
     let startTime = null;
 
     const animation = (currentTime) => {
@@ -119,11 +91,7 @@ function PostDetail() {
     if (!scrollIntervalRef.current) {
       scrollIntervalRef.current = setInterval(() => {
         scrollStep(step);
-<<<<<<< HEAD
-      }, 100); // Ajusta el intervalo según sea necesario
-=======
       }, 100);
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
     }
   };
 
@@ -148,11 +116,7 @@ function PostDetail() {
 
   const pdfUrl = post.pdf ? `http://localhost:8000${post.pdf}` : null;
   if (pdfUrl) {
-<<<<<<< HEAD
-    console.log("PDF URL:", pdfUrl);  // Imprimir la URL del archivo PDF
-=======
     console.log("PDF URL:", pdfUrl);
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
   }
 
   return (
@@ -162,11 +126,7 @@ function PostDetail() {
       </button>
       <div className="post-detail-container" ref={containerRef}>
         <div className="post-detail">
-<<<<<<< HEAD
-          <h1 className="post-title" style={{ marginTop: isOverflowing ? '80%' : '0' }}>{post.title}</h1>
-=======
           <h1 className="post-title" style={{ marginTop: isOverflowing ? '30%' : '0' }}>{post.title}</h1>
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
           {pdfUrl && (
             <div className="pdf-link">

@@ -1,20 +1,27 @@
 {% extends "admin/base.html" %}
-{% load static %}
-{% load i18n %}
+{% load static %} 
+{% load i18n %} 
 
 {% block branding %}
-    <h1 id="site-name"><img src="{% static 'images/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 50px;"></h1>
-{% endblock %}
+<h1 id="site-name">
+  <img
+    src="{% static 'images/logo.png' %}"
+    alt="Logo"
+    class="img-fluid"
+    style="max-height: 50px"
+  />
+</h1>
+{% endblock %} 
 
-{% block nav-global %}
-    {{ block.super }}
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var viewSiteLink = document.querySelector('a[href="/"]');
-            if (viewSiteLink) {
-                viewSiteLink.href = "http://localhost:3000";
-                viewSiteLink.target = "_blank";
-            }
-        });
-    </script>
+{% block nav-global %} 
+	{{ block.super }}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var viewSiteLink = document.querySelector('a[href="/"]');
+    if (viewSiteLink) {
+      viewSiteLink.href = "http://localhost:3000";
+      viewSiteLink.target = "_blank";
+    }
+  });
+</script>
 {% endblock %}

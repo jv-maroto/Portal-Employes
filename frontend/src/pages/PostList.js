@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import '../static/css/PostList.css';  // Importa tu archivo CSS personalizado
-
-function PostList() {
-  const [posts, setPosts] = useState([]);
-
-  useEffect(() => {
-    axios.get('http://localhost:8000/api/posts/')  // URL completa con protocolo y host
-      .then(response => {
-        console.log("Datos recibidos:", response.data);  // Verifica los datos en la consola
-=======
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -33,7 +19,6 @@ function PostList() {
     axios.get('http://localhost:8000/api/posts/')
       .then(response => {
         console.log("Datos recibidos:", response.data);
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
         setPosts(response.data);
       })
       .catch(error => {
@@ -41,8 +26,6 @@ function PostList() {
       });
   }, []);
 
-<<<<<<< HEAD
-=======
   const openModal = (postId) => {
     setSelectedPostId(postId);
     axios.get(`http://localhost:8000/api/posts/${postId}/views/`, {
@@ -65,7 +48,6 @@ function PostList() {
     setSelectedPostId(null);
   };
 
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
   return (
     <div className="container post-list-container">
       <h1 className="title special-title">Noticias</h1>
@@ -73,13 +55,6 @@ function PostList() {
         {posts.map(post => (
           <div key={post.id} className="post-card">
             <h2>{post.title}</h2>
-<<<<<<< HEAD
-            <div className="post-summary">{post.summary}</div>  {/* Mostrar el resumen aquí */}
-            <Link to={`/posts/${post.id}`} className="btn-ver-mas">Ver Noticia</Link>
-          </div>
-        ))}
-      </div>
-=======
             <div className="post-summary">{post.summary}</div>
             <div className="post-actions">
               <Link to={`/posts/${post.id}`} className="btn-ver-mas">Ver Noticia</Link>
@@ -105,7 +80,6 @@ function PostList() {
           ))}
         </ul>
       </Modal>
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
     </div>
   );
 }
