@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from base.admin import post_admin_site
+from base import views
 from base.views import register_user, verify_dni, reset_password, register_post_view, get_post_views, get_profile, years_nominas
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -18,9 +19,10 @@ urlpatterns = [
     path('api/profile/', get_profile, name='get_profile'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('api/years-nominas/', years_nominas, name='years_nominas'),
-
-
+    path('api/nominas/<str:username>/<int:year>/',
+         views.get_nominas_by_username_and_year, name='get_nominas_by_username_and_year'),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
