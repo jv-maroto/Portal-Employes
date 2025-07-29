@@ -1,5 +1,2 @@
 # Dependencias adicionales para Docker
 psycopg2-binary==2.9.9
-
-# Incluir todas las dependencias del proyecto
--r requirements.txt

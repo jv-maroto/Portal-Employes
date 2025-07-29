@@ -23,10 +23,9 @@ services:
       - EMAIL_HOST_USER=info@sagreracanarias.es
       - EMAIL_HOST_PASSWORD=Sagrer4.c4narias
       - DEFAULT_FROM_EMAIL=info@sagreracanarias.es
-    depends_on:
-      - db
     networks:
       - portal-network
+    restart: unless-stopped
 
   frontend:
     build:
