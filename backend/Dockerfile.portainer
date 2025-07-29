@@ -1,0 +1,36 @@
+# Dockerfile específico para Portainer - Ultra Simple
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Variables de entorno
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Instalar solo lo esencial
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Actualizar pip
+RUN pip install --upgrade pip
+
+# Instalar dependencias directamente (evita problems con requirements.txt)
+RUN pip install --no-cache-dir \
+    Django==5.1.0 \
+    djangorestframework==3.15.2 \
+    djangorestframework-simplejwt==5.3.0 \
+    django-cors-headers==4.3.1 \
+    Pillow==10.0.0
+
+# Copiar código
+COPY . .
+
+# Crear directorio para static y media
+RUN mkdir -p staticfiles media
+
+# Exponer puerto
+EXPOSE 8000
+
+# Comando simple
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
