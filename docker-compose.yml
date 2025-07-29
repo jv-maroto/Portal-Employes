@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: portal-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/media:/app/media
+      - ./backend/db.sqlite3:/app/db.sqlite3
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-66+qjm@3f^=5xav_&v!+_iip$=$=9^z6gorjogr4mw-8a%hfrw
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend,frontend
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:80
+      - CORS_ALLOW_ALL_ORIGINS=True
+      - EMAIL_HOST=smtp.dominioabsoluto.net
+      - EMAIL_PORT=587
+      - EMAIL_USE_TLS=True
+      - EMAIL_HOST_USER=info@sagreracanarias.es
+      - EMAIL_HOST_PASSWORD=Sagrer4.c4narias
+      - DEFAULT_FROM_EMAIL=info@sagreracanarias.es
+    depends_on:
+      - db
+    networks:
+      - portal-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: portal-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - portal-network
+
+  db:
+    image: postgres:13
+    container_name: portal-db
+    environment:
+      - POSTGRES_DB=portal_db
+      - POSTGRES_USER=portal_user
+      - POSTGRES_PASSWORD=portal_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - portal-network
+
+volumes:
+  postgres_data:
+
+networks:
+  portal-network:
+    driver: bridge

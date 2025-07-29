@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .header {
+            text-align: center;
+        }
+        .firma-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+        }
+        .firma {
+            width: 40%;
+            text-align: center;
+        }
+        .signature {
+            width: 200px;
+            display: block;
+            margin: 0 auto;
+            border: none;
+        }
+        .conforme-label {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+      <img src="{{ logo_data_uri }}" alt="Logo empresa" style="height:60px; margin-bottom:10px; display:block; margin-left:auto; margin-right:auto;" />
+        <h2>Confirmación de Vacaciones</h2>
+    </div>
+    <p>Don/Doña {{ vacacion.user.first_name }} {{ vacacion.user.last_name }}</p>
+    <p>
+        Por medio de la presente le comunico el periodo de disfrute de Vacaciones correspondientes al año 
+        {{ vacacion.inicio|date:"Y" }} iniciando el {{ vacacion.inicio|date:"l, d F Y" }} 
+        y acabando el {{ vacacion.fin|date:"l, d F Y" }} ambos inclusive.
+    </p>
+    
+    <div class="firma-section">
+        <!-- Firma del trabajador -->
+        <div class="firma">
+            <div class="conforme-label">Recibí y Conforme:</div>
+            <div>El Trabajador.</div>
+            <img src="{{ firma_usr_data_uri }}" alt="Firma del trabajador" class="signature">
+        </div>
+
+        <!-- Firma de la empresa -->
+        <div class="firma">
+            <div class="conforme-label">Conforme:</div>
+            <div>La Empresa.</div>
+            <img src="{{ firma_emp_data_uri }}" alt="Firma del director" class="signature">
+        </div>
+    </div>
+</body>
+</html>

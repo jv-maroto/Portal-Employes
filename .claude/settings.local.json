@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py:*)",
+      "Bash(npm run:*)",
+      "Bash(python:*)",
+      "Bash(npm outdated)",
+      "Bash(pip install:*)",
+      "Bash(pip uninstall:*)",
+      "Bash(npm update:*)",
+      "Bash(npm audit fix:*)",
+      "Bash(timeout 5 python manage.py runserver)",
+      "Bash(pip show:*)",
+      "Bash(grep:*)",
+      "Bash(cp:*)",
+      "Bash(timeout:*)",
+      "Bash(DJANGO_SETTINGS_MODULE=settings_minimal python manage.py runserver --noreload)",
+      "Bash(curl:*)",
+      "Bash(npm start)",
+      "Bash(chmod:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}

@@ -2,9 +2,10 @@ from django.contrib import admin, messages
 from django import forms
 from .models import Post, PostView, PdfFile
 from django.contrib.admin import AdminSite
-from ckeditor.widgets import CKEditorWidget
+# from ckeditor.widgets import CKEditorWidget # Removido por seguridad
 from django.utils.translation import ngettext
 from django.http import HttpResponseRedirect
+from .models import Vacacion
 
 import logging
 from django.urls import path, reverse
@@ -14,12 +15,14 @@ logger.setLevel(logging.DEBUG)
 
 
 class PostAdminForm(forms.ModelForm):
-    content = forms.CharField(widget=CKEditorWidget())
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 80}))
     summary = forms.CharField(widget=forms.Textarea, required=False)
+    department = forms.ChoiceField(choices=Post.DEPARTMENT_CHOICES)  # Asegúrate de que este campo está aquí
+
 
     class Meta:
         model = Post
-        fields = ['title', 'summary', 'content', 'image', 'pdf']
+        fields = ['title', 'summary', 'content', 'department', 'image', 'pdf','download_only']  # Incluye 'department' aquí
 
 
 class PdfFileUploadForm(forms.ModelForm):
@@ -121,9 +124,10 @@ class PdfFileAdmin(admin.ModelAdmin):
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     form = PostAdminForm
-    list_display = ('title', 'summary', 'created_at', 'updated_at')
+    list_display = ('title', 'summary', 'created_at', 'updated_at','download_only')
+    list_filter = ['department', 'created_at', 'download_only']
     search_fields = ('title', 'content', 'summary')
-
+    
     class Media:
         css = {'all': ('css/bootstrap.min.css',)}
         js = ('js/bootstrap.bundle.min.js',)
@@ -146,6 +150,17 @@ class PostViewAdmin(admin.ModelAdmin):
     def has_view_permission(self, request, obj=None):
         return request.user.is_superuser
 
+
+class VacacionAdmin(admin.ModelAdmin):
+    # Campos que se muestran en la lista
+    list_display = ('user', 'motivo', 'inicio', 'fin', 'email')
+    list_filter = ('motivo', 'inicio', 'fin')  # Filtrar por campos
+    search_fields = ('user__username', 'email')
+    exclude = ('pdf_file',)
+    
+
+
+admin.site.register(Vacacion, VacacionAdmin)
 
 admin.site.register(PostView, PostViewAdmin)
 admin.site.register(PdfFile, PdfFileAdmin)

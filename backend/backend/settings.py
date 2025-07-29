@@ -2,6 +2,15 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+# Configuración simple usando variables de entorno con valores por defecto
+def get_env_bool(key, default=False):
+    value = os.environ.get(key, str(default))
+    return str(value).lower() in ('true', '1', 'yes', 'on')
+
+def get_env_list(key, default=''):
+    value = os.environ.get(key, default)
+    return [item.strip() for item in value.split(',') if item.strip()] if value else []
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,17 +18,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-66+qjm@3f^=5xav_&v!+_iip$=$=9^z6gorjogr4mw-8a%hfrw'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-66+qjm@3f^=5xav_&v!+_iip$=$=9^z6gorjogr4mw-8a%hfrw')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_env_bool('DEBUG', default=True)
 
-ALLOWED_HOSTS = [
-    'localhost',  # Permitir acceso desde localhost
-    '127.0.0.1',  # Permitir acceso desde la IP local
-    'sagreracanarias.es',  # Reemplaza esto con tu dominio
-    '[::1]',  # Permitir acceso desde localhost (IPv6)
-]
+ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', default='localhost,127.0.0.1,sagreracanarias.es,[::1]')
 
 # Application definition
 
@@ -31,40 +35,31 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "corsheaders",
-    'ckeditor',
-    'ckeditor_uploader',
+    # 'ckeditor', # Removido por seguridad
+    # 'ckeditor_uploader',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'base',
 ]
 
-CKEDITOR_UPLOAD_PATH = "uploads/"
+# CKEDITOR_UPLOAD_PATH = "uploads/" # Removido
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-CKEDITOR_CONFIGS = {
+# CKEditor 5 configuration
+customColorPalette = [
+    {'color': 'hsl(4, 90%, 58%)', 'label': 'Red'},
+    {'color': 'hsl(340, 82%, 52%)', 'label': 'Pink'},
+    {'color': 'hsl(291, 64%, 42%)', 'label': 'Purple'},
+    {'color': 'hsl(262, 52%, 47%)', 'label': 'Deep Purple'},
+    {'color': 'hsl(231, 48%, 48%)', 'label': 'Indigo'},
+    {'color': 'hsl(207, 90%, 54%)', 'label': 'Blue'},
+]
+
+CKEDITOR_5_CONFIGS = {
     'default': {
-        'toolbar': 'full',
-        'height': 300,
-        'width': '100%',
-        'extraPlugins': ','.join([
-            'uploadimage',  # incluye el plugin de subida de imágenes
-            'div',
-            'autolink',
-            'autoembed',
-            'embedsemantic',
-            'autogrow',
-            'widget',
-            'lineutils',
-            'clipboard',
-            'dialog',
-            'dialogui',
-            'elementspath'
-        ]),
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+                    'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', ],
     },
 }
 
@@ -79,8 +74,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_ALL_ORIGINS = get_env_bool('CORS_ALLOW_ALL_ORIGINS', default=True)
+CORS_ALLOWED_ORIGINS = get_env_list('CORS_ALLOWED_ORIGINS', default='http://localhost:3000')
+CORS_ALLOW_CREDENTIALS = True 
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'x-username',  # Agrega el encabezado 'x-username' aquí
+]
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
@@ -112,6 +113,19 @@ DATABASES = {
         'NAME': str(BASE_DIR / 'db.sqlite3'),
     }
 }
+
+# Configuración alternativa para PostgreSQL en Docker
+# Descomenta las siguientes líneas si quieres usar PostgreSQL
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('POSTGRES_DB', 'portal_db'),
+#         'USER': os.environ.get('POSTGRES_USER', 'portal_user'),
+#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'portal_password'),
+#         'HOST': os.environ.get('POSTGRES_HOST', 'db'),
+#         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+#     }
+# }
 
 
 # Password validation
@@ -150,9 +164,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "base/static",
-]
+
+# En desarrollo, Django busca archivos estáticos en estas ubicaciones
+STATICFILES_DIRS = []
+
+# En producción, collectstatic copia todos los archivos aquí
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -166,8 +183,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=8),  # Por ejemplo, 8 horas
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
@@ -197,3 +214,10 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 }
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.dominioabsoluto.net')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = get_env_bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'info@sagreracanarias.es')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'Sagrer4.c4narias')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'info@sagreracanarias.es')
