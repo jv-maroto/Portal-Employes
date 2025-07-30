@@ -1,0 +1,83 @@
+# Docker Compose para integración local con nginx existente
+# Este archivo es para tu VM local, no se sube a GitHub
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.simple
+    container_name: portal-empleados-backend
+    ports:
+      - "8001:8000"  # Puerto diferente para no interferir con otros servicios
+    volumes:
+      - ./backend/media:/app/media
+      - portal_db:/app/db.sqlite3
+    environment:
+      # Configuración para producción local
+      - DEBUG=False
+      - SECRET_KEY=local-secret-key-change-this-in-production-2024
+      - ALLOWED_HOSTS=sagreracanarias.es,www.sagreracanarias.es,localhost,127.0.0.1,backend
+      - CORS_ALLOWED_ORIGINS=https://sagreracanarias.es,http://sagreracanarias.es,https://www.sagreracanarias.es
+      - CORS_ALLOW_ALL_ORIGINS=False
+      # Configuración de email (usa las credenciales reales)
+      - EMAIL_HOST=smtp.dominioabsoluto.net
+      - EMAIL_PORT=587
+      - EMAIL_USE_TLS=True
+      - EMAIL_HOST_USER=info@sagreracanarias.es
+      - EMAIL_HOST_PASSWORD=Sagrer4.c4narias
+      - DEFAULT_FROM_EMAIL=noreply@sagreracanarias.es
+      # Configuración de URL base
+      - FORCE_SCRIPT_NAME=/trabajadores
+      - STATIC_URL=/trabajadores/static/
+      - MEDIA_URL=/trabajadores/media/
+    networks:
+      - portal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: portal-empleados-frontend
+    ports:
+      - "3001:80"  # Puerto diferente para el frontend
+    environment:
+      - REACT_APP_API_URL=https://sagreracanarias.es/trabajadores/api
+      - REACT_APP_BASE_URL=/trabajadores
+      - PUBLIC_URL=/trabajadores
+    depends_on:
+      - backend
+    networks:
+      - portal-network
+    restart: unless-stopped
+
+  # Opcional: Base de datos PostgreSQL para producción
+  postgres:
+    image: postgres:13
+    container_name: portal-empleados-db
+    environment:
+      - POSTGRES_DB=portal_empleados_prod
+      - POSTGRES_USER=portal_admin
+      - POSTGRES_PASSWORD=portal_password_secure_2024
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Puerto diferente para no interferir
+    networks:
+      - portal-network
+    restart: unless-stopped
+
+volumes:
+  portal_db:
+  postgres_data:
+
+networks:
+  portal-network:
+    driver: bridge
+    name: portal-empleados-net
