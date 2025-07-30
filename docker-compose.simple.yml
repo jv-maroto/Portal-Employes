@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.simple
     container_name: portal-backend-simple
     ports:
-      - "8000:8000"
+      - "8080:8000"
     volumes:
       - ./backend/media:/app/media
       - backend_db:/app/db.sqlite3
@@ -32,7 +32,7 @@ services:
       dockerfile: Dockerfile
     container_name: portal-frontend-simple
     ports:
-      - "80:80"
+      - "90:80"
     depends_on:
       - backend
     networks:
