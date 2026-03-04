@@ -43,7 +43,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['id', 'department', 'title', 'summary', 'content', 'image', 'pdf', 'download_only', 'created_at', 'updated_at']
 
 
 class PdfFileSerializer(serializers.ModelSerializer):
