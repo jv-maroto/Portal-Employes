@@ -186,11 +186,21 @@ class Vacacion(models.Model):
     year = models.IntegerField()
     month = models.CharField(max_length=20)
     motivo = models.CharField(max_length=50, choices=MOTIVO_CHOICES)
-    inicio = models.DateField()
+    inicio = models.DateField(db_index=True)
     fin = models.DateField()
     email = models.EmailField()
     firma = models.ImageField(upload_to='firmas/', blank=True, null=True)
     file = models.FileField(upload_to='vacaciones/', blank=True, null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'year'], name='idx_vacacion_user_year'),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.inicio and self.fin and self.inicio > self.fin:
+            raise ValidationError({'fin': 'La fecha de fin no puede ser anterior a la fecha de inicio.'})
 
     def __str__(self):
         return f"{self.user.username} - {self.motivo} ({self.inicio} a {self.fin})"
