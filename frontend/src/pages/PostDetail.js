@@ -122,7 +122,7 @@ function PostDetail() {
       <div className="post-detail-container" ref={containerRef}>
         <div className="post-detail">
           <h1 className="post-title" style={{ marginTop: isOverflowing ? '30%' : '0' }}>{post.title}</h1>
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }} />
           {pdfUrl && (
             <div className="pdf-link">
               <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
