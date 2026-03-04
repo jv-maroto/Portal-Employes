@@ -228,6 +228,22 @@ def upload_nomina(request):
     if not file or not year or not month:
         return Response({'error': 'Faltan datos'}, status=400)
 
+    # Validar year y month
+    try:
+        year = int(year)
+        if year < 2000 or year > 2100:
+            return Response({'error': 'Año no válido.'}, status=400)
+    except (ValueError, TypeError):
+        return Response({'error': 'Año no válido.'}, status=400)
+
+    valid_months = [
+        '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12',
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+    ]
+    if str(month) not in valid_months:
+        return Response({'error': 'Mes no válido.'}, status=400)
+
     if file.content_type not in ALLOWED_UPLOAD_TYPES:
         return Response({'error': 'Solo se permiten archivos PDF.'}, status=400)
 
