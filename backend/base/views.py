@@ -96,6 +96,7 @@ def years_nominas(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def verify_dni(request):
     dni = request.data.get('dni')
     try:
@@ -106,11 +107,14 @@ def verify_dni(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAdminUser])
 def register_user(request):
-    username = request.data.get('username')
     email = request.data.get('email')
     dni = request.data.get('dni')
     password = request.data.get('password')
+
+    if not dni or not password:
+        return Response({'message': 'DNI y contraseña son obligatorios.'}, status=status.HTTP_400_BAD_REQUEST)
 
     if User.objects.filter(username=dni).exists():
         return Response({'message': 'DNI already exists'}, status=status.HTTP_400_BAD_REQUEST)
@@ -122,17 +126,20 @@ def register_user(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def reset_password(request):
-    dni = request.data.get('dni')
+    old_password = request.data.get('old_password')
     new_password = request.data.get('new_password')
 
-    try:
-        user = User.objects.get(username=dni)
-        user.set_password(new_password)
-        user.save()
-        return Response({'message': 'Password updated successfully.'}, status=status.HTTP_200_OK)
-    except User.DoesNotExist:
-        return Response({'message': 'DNI not found.'}, status=status.HTTP_404_NOT_FOUND)
+    if not old_password or not new_password:
+        return Response({'message': 'Se requieren la contraseña actual y la nueva.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not request.user.check_password(old_password):
+        return Response({'message': 'La contraseña actual es incorrecta.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    request.user.set_password(new_password)
+    request.user.save()
+    return Response({'message': 'Contraseña actualizada correctamente.'}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
