@@ -97,7 +97,7 @@ export default function VacationsPage() {
                 };
                 setPermissionsData(permissionsData);
         } catch (error) {
-            console.error("Error al obtener vacaciones:", error);
+            // Error silenciado en producción
         }
     }, [selectedYear]);
 
