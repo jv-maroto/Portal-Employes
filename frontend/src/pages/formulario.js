@@ -31,8 +31,6 @@ function VacationForm() {
     const saveSignature = () => {
         const signatureImage = sigPadRef.current.getTrimmedCanvas().toDataURL('image/png');
         setSignature(signatureImage);
-        console.log('Firma generada:', signatureImage);  // Verifica si la firma se genera correctamente
-  
         // Mostrar la notificación temporalmente
         setShowNotification(true);
         setTimeout(() => {
