@@ -12,7 +12,7 @@ import pdfplumber
 # Configuración del logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler('procesamiento_pdf.log')
+handler = logging.FileHandler(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'logs', 'procesamiento_pdf.log') if os.path.isdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'logs')) else 'procesamiento_pdf.log')
 handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
