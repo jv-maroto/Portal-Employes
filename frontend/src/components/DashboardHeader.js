@@ -3,7 +3,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';  // Asegúrate de importar useNavigate
-import axios from 'axios';  // Asegúrate de importar axios
+import api from '../api';
 
 export function DashboardHeader() {
   const navigate = useNavigate();  // Usa el hook useNavigate
@@ -11,11 +11,7 @@ export function DashboardHeader() {
   const handleLogout = async () => {
     try {
       // Hacer solicitud POST al backend para cerrar sesión
-      await axios.post('http://localhost:8000/api/logout/', {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        }
-      });
+      await api.post('logout/', {});
 
       // Eliminar token del localStorage
       localStorage.removeItem('access_token');
@@ -27,7 +23,7 @@ export function DashboardHeader() {
       // Redirigir a la página de login usando useNavigate
       navigate('/login');  // Cambia la redirección por navigate
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+      // Error silenciado en producción
     }
   }
   // Obtener el nombre y apellido del usuario del localStorage, si no existen usa el username
