@@ -49,10 +49,9 @@ function VacationForm() {
         email,
         firma: signature,
       };
-      console.log(formData);
-
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/';
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/vacaciones/registrar/', {
+        const response = await fetch(`${apiUrl}vacaciones/registrar/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
