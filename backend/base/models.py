@@ -5,12 +5,14 @@ import logging
 from PyPDF2 import PdfReader, PdfWriter
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 import pdfplumber
 
 # Configuración del logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler('procesamiento_pdf.log')
+handler = logging.FileHandler(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'logs', 'procesamiento_pdf.log') if os.path.isdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'logs')) else 'procesamiento_pdf.log')
 handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
@@ -20,16 +22,28 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    dni = models.CharField(max_length=9)
+    dni = models.CharField(
+        max_length=9,
+        validators=[RegexValidator(
+            regex=r'^\d{8}[A-HJ-NP-TV-Z]$',
+            message='El DNI debe tener 8 dígitos seguidos de una letra válida.'
+        )],
+        db_index=True,
+    )
 
     def __str__(self):
         return self.user.username
 
 class PdfFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    year = models.IntegerField()
+    year = models.IntegerField(db_index=True)
     month = models.CharField(max_length=20)
     file = models.FileField(upload_to='')
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'year'], name='idx_pdffile_user_year'),
+        ]
 
     def __str__(self):
         return f"{self.month} {self.year} - {self.user or 'Usuario no encontrado'}"
@@ -172,11 +186,21 @@ class Vacacion(models.Model):
     year = models.IntegerField()
     month = models.CharField(max_length=20)
     motivo = models.CharField(max_length=50, choices=MOTIVO_CHOICES)
-    inicio = models.DateField()
+    inicio = models.DateField(db_index=True)
     fin = models.DateField()
     email = models.EmailField()
     firma = models.ImageField(upload_to='firmas/', blank=True, null=True)
     file = models.FileField(upload_to='vacaciones/', blank=True, null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'year'], name='idx_vacacion_user_year'),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.inicio and self.fin and self.inicio > self.fin:
+            raise ValidationError({'fin': 'La fecha de fin no puede ser anterior a la fecha de inicio.'})
 
     def __str__(self):
         return f"{self.user.username} - {self.motivo} ({self.inicio} a {self.fin})"

@@ -9,10 +9,11 @@ import PermisosSummary from "../components/vacations/summaries/permisos-summary"
 import VacationForm from "../components/vacations/vacation-form";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import api from "../api";
 
 export default function VacationsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedYear, setSelectedYear] = useState(2025);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [vacations, setVacations] = useState([]);
     const [vacationData, setVacationData] = useState(null);
     const [daysOffData, setDaysOffData] = useState(null);
@@ -21,20 +22,8 @@ export default function VacationsPage() {
     // Hacemos fetchVacations reutilizable para refrescar tras crear
     const fetchVacations = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:8000/api/vacaciones/listar/", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error en el fetch: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            console.log("Datos obtenidos del backend:", data);
+            const response = await api.get("vacaciones/listar/");
+            const data = response.data;
 
             const filteredVacations = data.filter(
                 (vacation) => new Date(vacation.inicio).getFullYear() === selectedYear
@@ -88,7 +77,6 @@ export default function VacationsPage() {
                 setDaysOffData(daysOffData);
 
                 const permissionsRanges = filteredVacations.filter((vacation) => vacation.motivo === "Permisos");
-                console.log("Permisos encontrados:", permissionsRanges);
                 const takenPermissions = permissionsRanges.reduce((sum, vacation) => {
                     const startDate = new Date(vacation.inicio);
                     const endDate = new Date(vacation.fin);
@@ -107,10 +95,9 @@ export default function VacationsPage() {
                           )}`
                         : "Ninguna",
                 };
-                console.log("Datos de permisos calculados:", permissionsData);
                 setPermissionsData(permissionsData);
         } catch (error) {
-            console.error("Error al obtener vacaciones:", error);
+            // Error silenciado en producción
         }
     }, [selectedYear]);
 
@@ -189,10 +176,9 @@ export default function VacationsPage() {
                         onChange={(e) => setSelectedYear(Number(e.target.value))}
                         className="w-full md:w-48 p-2 border rounded"
                     >
-                        <option value={2025}>2025</option>
-                        <option value={2024}>2024</option>
-                        <option value={2023}>2023</option>
-                        <option value={2022}>2022</option>
+                        {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                            <option key={y} value={y}>{y}</option>
+                        ))}
                     </select>
                 </div>
                 <div className="p-4 space-y-3">

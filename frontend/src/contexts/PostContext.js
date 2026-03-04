@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import api from "../api";
 
 const PostContext = createContext();
 export const ViewsContext = createContext({ showViews: false, setShowViews: () => {} })
@@ -13,22 +14,10 @@ export const PostProvider = ({ children }) => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await fetch("http://localhost:8000/api/posts/", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Error al obtener los posts: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                setPostsData(data);
+                const response = await api.get("posts/");
+                setPostsData(response.data);
             } catch (error) {
-                console.error("Error al obtener los posts:", error);
+                // Error silenciado en producción
             }
         };
 

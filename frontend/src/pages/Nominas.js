@@ -76,7 +76,7 @@ export default function PayrollList() {
         // Si la respuesta es exitosa, actualiza el estado
         setPayrollData(response.data);
       } catch (err) {
-        console.error('Error al obtener las nóminas:', err);
+        // Error silenciado en producción
         if (err.response && err.response.status === 401) {
           // Si el token está expirado, intenta renovarlo
           if (refreshToken) {
@@ -96,7 +96,7 @@ export default function PayrollList() {
   
               setPayrollData(retryResponse.data); // Actualiza nóminas
             } catch (refreshError) {
-              console.error('Error al renovar el token:', refreshError);
+              // Error silenciado en producción
               setError('No se pudo renovar el token. Inicia sesión nuevamente.');
             }
           } else {

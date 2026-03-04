@@ -13,6 +13,7 @@ import { VacationProvider } from './contexts/VacationContext';
 import { PayslipProvider } from './contexts/NominasContext';
 import { PostProvider } from './contexts/PostContext';
 import PrivateRoute from './components/PrivateRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import api from './api';
 import VacacionesAdmin from '@/pages/admin/tablavacaciones';
 import TablaVacaciones from "@/pages/admin/tablavacaciones";
@@ -38,7 +39,7 @@ function App() {
               localStorage.setItem('access_token', response.data.access);
               setIsAuthenticated(true);
             } catch (refreshError) {
-              console.error('Error al refrescar el token:', refreshError);
+              // Error silenciado en producción
               localStorage.removeItem('access_token');
               localStorage.removeItem('refresh_token');
               setIsAuthenticated(false);
@@ -77,12 +78,13 @@ function App() {
       setIsAuthenticated(false);
       navigate('/login');
     } catch (err) {
-      console.error('Error al cerrar sesión:', err);
+      // Error silenciado en producción
       setIsAuthenticated(false);
     }
   };
 
   return (
+    <ErrorBoundary>
     <ViewsProvider>
       <div className="flex">
         {isAuthenticated && <SidebarWrapper onLogout={handleLogout} />}
@@ -152,6 +154,7 @@ function App() {
         </div>
       </div>
     </ViewsProvider>
+    </ErrorBoundary>
   );
 }
 

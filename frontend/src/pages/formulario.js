@@ -20,7 +20,7 @@ function VacationForm() {
       const canvas = sigPadRef.current.getCanvas();
       const context = canvas.getContext('2d', { willReadFrequently: true });
       if (context) {
-        console.log("Contexto del canvas configurado con willReadFrequently.");
+        // Canvas configurado
       }
     }, []);
 
@@ -31,8 +31,6 @@ function VacationForm() {
     const saveSignature = () => {
         const signatureImage = sigPadRef.current.getTrimmedCanvas().toDataURL('image/png');
         setSignature(signatureImage);
-        console.log('Firma generada:', signatureImage);  // Verifica si la firma se genera correctamente
-  
         // Mostrar la notificación temporalmente
         setShowNotification(true);
         setTimeout(() => {
@@ -51,10 +49,9 @@ function VacationForm() {
         email,
         firma: signature,
       };
-      console.log(formData);
-
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/';
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/vacaciones/registrar/', {
+        const response = await fetch(`${apiUrl}vacaciones/registrar/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -64,8 +61,6 @@ function VacationForm() {
         });
 
         if (response.ok) {
-            console.log('Vacación registrada correctamente.');
-      
             // Limpiar el formulario después de recibir una respuesta exitosa
             setDni('');
             setMotivo('Vacaciones');
@@ -78,12 +73,10 @@ function VacationForm() {
             // Opcional: recargar la página completa para asegurarse de que todo esté limpio
             window.location.reload();
           } else {
-            const errorResult = await response.json();
-            console.error(errorResult);
+            await response.json();
             alert('Error al registrar la vacación.');
           }
         } catch (error) {
-          console.error('Error:', error);
           alert('Ocurrió un error al enviar la solicitud.');
         }
       };

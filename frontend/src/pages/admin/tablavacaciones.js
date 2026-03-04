@@ -50,7 +50,6 @@ export default function TablaVacaciones() {
         const res = await api.get("todas-vacaciones/", {
           headers: { Authorization: `Bearer ${token}` },
         })
-        console.log("VACACIONES RECIBIDAS:", res.data)
         const adaptados = res.data.map((v) => ({
           ...v,
           nombre:

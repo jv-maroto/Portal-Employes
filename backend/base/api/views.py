@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from base.models import Post, PostView, PdfFile, Vacacion
+from base.models import Post, PostView, PdfFile, Vacacion, Profile
 from rest_framework import status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -53,7 +53,7 @@ def post_detail(request, pk):
 @api_view(['GET', 'POST'])
 def post_list(request):
     if request.method == 'GET':
-        posts = Post.objects.all()
+        posts = Post.objects.all().order_by('-created_at')[:50]
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
@@ -76,7 +76,7 @@ def register_post_view(request, post_id):
 @permission_classes([IsAdminUser])
 def get_post_views(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    views = PostView.objects.filter(post=post)
+    views = PostView.objects.filter(post=post).select_related('user')
     data = [{'username': view.user.username, 'viewed_at': view.viewed_at}
             for view in views]
     return Response(data)
@@ -94,7 +94,7 @@ def post_view(request, post_id):
 @permission_classes([IsAdminUser])
 def post_views_list(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    views = PostView.objects.filter(post=post)
+    views = PostView.objects.filter(post=post).select_related('user')
     data = [{'username': view.user.username, 'viewed_at': view.viewed_at}
             for view in views]
     return JsonResponse(data, safe=False)
@@ -108,8 +108,7 @@ def get_profile(request):
         profile = user.profile
         serializer = ProfileSerializer(profile, many=False)
         return Response(serializer.data)
-    except:
-        # Si no tiene perfil, devolver datos básicos del usuario
+    except Profile.DoesNotExist:
         return Response({
             'username': user.username,
             'is_superuser': user.is_superuser,
@@ -229,6 +228,22 @@ def upload_nomina(request):
     if not file or not year or not month:
         return Response({'error': 'Faltan datos'}, status=400)
 
+    # Validar year y month
+    try:
+        year = int(year)
+        if year < 2000 or year > 2100:
+            return Response({'error': 'Año no válido.'}, status=400)
+    except (ValueError, TypeError):
+        return Response({'error': 'Año no válido.'}, status=400)
+
+    valid_months = [
+        '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12',
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+    ]
+    if str(month) not in valid_months:
+        return Response({'error': 'Mes no válido.'}, status=400)
+
     if file.content_type not in ALLOWED_UPLOAD_TYPES:
         return Response({'error': 'Solo se permiten archivos PDF.'}, status=400)
 
@@ -262,12 +277,6 @@ def registrar_vacacion(request):
     else:
         # Devuelve los errores de validación
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAdminUser
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from base.models import Vacacion  # Ajusta el nombre del modelo si es diferente
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])

@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 import SignatureCanvas from 'react-signature-canvas';
+import api from '../../api';
 
 const meses = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -101,6 +102,10 @@ export default function VacationForm({ onCreated, onClose, vacations = [] }) {
       setMessage({ type: 'error', text: 'La fecha de fin es requerida.' });
       return;
     }
+    if (formData.startDate > formData.endDate) {
+      setMessage({ type: 'error', text: 'La fecha de fin no puede ser anterior a la fecha de inicio.' });
+      return;
+    }
     if (!formData.email || !formData.email.trim()) {
       setMessage({ type: 'error', text: 'El correo electrónico es requerido.' });
       return;
@@ -165,57 +170,8 @@ export default function VacationForm({ onCreated, onClose, vacations = [] }) {
       setLoading(true);
       setMessage(null);
 
-      const response = await fetch('http://localhost:8000/api/vacaciones/registrar/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        let errorText = '';
-        try {
-          const errorData = await response.json();
-          // Si el backend devuelve errores de campos requeridos, los mostramos de forma específica
-          if (typeof errorData === 'object' && errorData !== null) {
-            // Busca el primer campo requerido
-            const requiredField = Object.keys(errorData).find(
-              key => errorData[key].some(msg => msg.includes('requerido') || msg.includes('required'))
-            );
-            if (requiredField) {
-              errorText = `El campo "${requiredField}" es requerido.`;
-            } else {
-              errorText = Object.values(errorData).flat().join(' ');
-            }
-          } else {
-            errorText = errorData.error || JSON.stringify(errorData) || '';
-          }
-        } catch {
-          errorText = 'Error desconocido';
-        }
-
-        // Personaliza el mensaje según el motivo y el error recibido
-        if (errorText.includes('exceso') || errorText.includes('límite')) {
-          if (formData.type === 'Vacaciones') {
-            throw new Error('No se ha podido registrar por exceso de días de Vacaciones.');
-          } else if (formData.type === 'Permisos') {
-            throw new Error('No se ha podido registrar por exceso de días de Permisos.');
-          } else if (formData.type === 'Días Libres') {
-            throw new Error('No se ha podido registrar por exceso de días de Días Libres.');
-          }
-        } else if (formData.type === 'Permisos') {
-          throw new Error(errorText || 'Error al registrar el permiso.');
-        } else if (formData.type === 'Días Libres') {
-          throw new Error(errorText || 'Error al registrar los días libres.');
-        } else {
-          throw new Error(errorText || 'Error al registrar la vacación.');
-        }
-      }
-
-      const responseData = await response.json();
-      setMessage({ type: 'success', text: responseData.message });
+      const response = await api.post('vacaciones/registrar/', payload);
+      setMessage({ type: 'success', text: response.data.message });
 
       if (onCreated) onCreated();
       if (onClose) {
@@ -224,7 +180,25 @@ export default function VacationForm({ onCreated, onClose, vacations = [] }) {
         }, 2000);
       }
     } catch (error) {
-      setMessage({ type: 'error', text: error.message });
+      let errorText = 'Error desconocido';
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        if (typeof errorData === 'object') {
+          const requiredField = Object.keys(errorData).find(
+            key => Array.isArray(errorData[key]) && errorData[key].some(msg => msg.includes('requerido') || msg.includes('required'))
+          );
+          if (requiredField) {
+            errorText = `El campo "${requiredField}" es requerido.`;
+          } else {
+            errorText = Object.values(errorData).flat().join(' ');
+          }
+        } else {
+          errorText = String(errorData);
+        }
+      } else if (error.message) {
+        errorText = error.message;
+      }
+      setMessage({ type: 'error', text: errorText });
     } finally {
       setLoading(false);
     }

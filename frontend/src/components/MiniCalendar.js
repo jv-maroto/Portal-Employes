@@ -64,7 +64,6 @@ export function MiniCalendar() {
         // Nóminas: solo marcar el día, sin descripción
         // Nóminas: mostrar "Nómina de {mes}" como summary
         const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-        console.log('Nóminas recibidas:', nominas);
         const nominaEvents = nominas.map(nom => {
           let mes = '';
           // Aseguramos que month sea string de dos dígitos
@@ -94,7 +93,7 @@ export function MiniCalendar() {
 
   const handleSelectDate = (date) => {
     // Aquí puedes manejar la selección de fecha, por ejemplo, mostrar eventos para ese día
-    console.log('Fecha seleccionada:', date);
+    // Fecha seleccionada
   };
 
   return (

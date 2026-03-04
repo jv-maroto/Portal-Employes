@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 const PayslipContext = createContext();
 
@@ -15,28 +15,25 @@ export const PayslipProvider = ({ children }) => {
 
   const fetchPayrollData = useCallback(async (year) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/nominas/${username}/${year}/`, {
+      const response = await api.get(`nominas/${username}/${year}/`, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'X-Username': username,
         },
       });
       return response.data;
     } catch (err) {
-      console.error(`Error al obtener las nóminas del año ${year}:`, err);
+      // Error silenciado en producción
       if (err.response && err.response.status === 401 && refreshToken) {
-        // Intentar renovar el token si está expirado
         try {
-          const refreshResponse = await axios.post('http://localhost:8000/api/token/refresh/', {
+          const refreshResponse = await api.post('token/refresh/', {
             refresh: refreshToken,
           });
 
           const newAccessToken = refreshResponse.data.access;
           localStorage.setItem('access_token', newAccessToken);
 
-          // Reintentar la solicitud con el nuevo token
-          const retryResponse = await axios.get(
-            `http://localhost:8000/api/nominas/${username}/${year}/`,
+          const retryResponse = await api.get(
+            `nominas/${username}/${year}/`,
             {
               headers: {
                 Authorization: `Bearer ${newAccessToken}`,
@@ -46,7 +43,7 @@ export const PayslipProvider = ({ children }) => {
 
           return retryResponse.data;
         } catch (refreshError) {
-          console.error('Error al renovar el token:', refreshError);
+          // Error silenciado en producción
           setError('No se pudo renovar el token. Inicia sesión nuevamente.');
         }
       } else {
@@ -72,7 +69,7 @@ export const PayslipProvider = ({ children }) => {
       if (data.length === 0) {
         // Si no hay datos en el año actual, buscar en el año anterior
         const previousYear = selectedYear - 1;
-        console.warn(`No se encontraron nóminas para el año ${selectedYear}. Buscando en ${previousYear}...`);
+        // Sin nóminas en el año seleccionado, buscar en el anterior
         data = await fetchPayrollData(previousYear);
         if (data.length > 0) {
           setSelectedYear(previousYear); // Cambiar al año anterior dinámicamente
