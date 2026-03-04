@@ -33,8 +33,7 @@ export default function ComunicadoPage() {
         setComunicado(data);
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Error cargando comunicado:', err);
+      .catch(() => {
         setError('No se pudo cargar el comunicado');
         setLoading(false);
       });
