@@ -13,7 +13,7 @@ import api from "../api";
 
 export default function VacationsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedYear, setSelectedYear] = useState(2025);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [vacations, setVacations] = useState([]);
     const [vacationData, setVacationData] = useState(null);
     const [daysOffData, setDaysOffData] = useState(null);
