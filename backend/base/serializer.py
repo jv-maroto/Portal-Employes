@@ -84,7 +84,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_superuser'] = user.is_superuser
         token['is_staff'] = user.is_staff
         token['username'] = user.username
-        token['userid'] = user.user_id
+        token['userid'] = user.id
 
         return token
 
