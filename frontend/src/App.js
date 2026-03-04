@@ -137,8 +137,16 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route path="/admin/vacaciones" element={<VacacionesAdmin />} />
-            <Route path="/admin/tablavacaciones" element={<TablaVacaciones />} />
+            <Route path="/admin/vacaciones" element={
+              <PrivateRoute isAuthenticated={isAuthenticated}>
+                <VacacionesAdmin />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/tablavacaciones" element={
+              <PrivateRoute isAuthenticated={isAuthenticated}>
+                <TablaVacaciones />
+              </PrivateRoute>
+            } />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         </div>
