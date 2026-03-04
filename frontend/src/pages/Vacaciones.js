@@ -9,6 +9,7 @@ import PermisosSummary from "../components/vacations/summaries/permisos-summary"
 import VacationForm from "../components/vacations/vacation-form";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import api from "../api";
 
 export default function VacationsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -21,20 +22,8 @@ export default function VacationsPage() {
     // Hacemos fetchVacations reutilizable para refrescar tras crear
     const fetchVacations = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:8000/api/vacaciones/listar/", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error en el fetch: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            console.log("Datos obtenidos del backend:", data);
+            const response = await api.get("vacaciones/listar/");
+            const data = response.data;
 
             const filteredVacations = data.filter(
                 (vacation) => new Date(vacation.inicio).getFullYear() === selectedYear
