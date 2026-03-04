@@ -37,7 +37,6 @@ export default function RecuperarPassword() {
       return
     }
 
-    console.log('Password reset attempt:', formData)
     setSuccess(true)
   }
 
