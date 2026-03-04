@@ -84,6 +84,7 @@ function App() {
   };
 
   return (
+    <ErrorBoundary>
     <ViewsProvider>
       <div className="flex">
         {isAuthenticated && <SidebarWrapper onLogout={handleLogout} />}
