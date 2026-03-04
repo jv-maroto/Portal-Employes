@@ -95,7 +95,6 @@ export default function VacationsPage() {
                           )}`
                         : "Ninguna",
                 };
-                console.log("Datos de permisos calculados:", permissionsData);
                 setPermissionsData(permissionsData);
         } catch (error) {
             console.error("Error al obtener vacaciones:", error);
