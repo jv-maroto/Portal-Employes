@@ -36,9 +36,14 @@ class Profile(models.Model):
 
 class PdfFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    year = models.IntegerField()
+    year = models.IntegerField(db_index=True)
     month = models.CharField(max_length=20)
     file = models.FileField(upload_to='')
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'year'], name='idx_pdffile_user_year'),
+        ]
 
     def __str__(self):
         return f"{self.month} {self.year} - {self.user or 'Usuario no encontrado'}"
