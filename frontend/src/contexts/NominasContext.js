@@ -43,7 +43,7 @@ export const PayslipProvider = ({ children }) => {
 
           return retryResponse.data;
         } catch (refreshError) {
-          console.error('Error al renovar el token:', refreshError);
+          // Error silenciado en producción
           setError('No se pudo renovar el token. Inicia sesión nuevamente.');
         }
       } else {
