@@ -25,7 +25,6 @@ function PostDetail() {
         api.post(`posts/${id}/view/`, {}).catch(() => {});
       })
       .catch(error => {
-        console.error("Hubo un error al obtener el post:", error);
         setError("Hubo un error al obtener el post. Por favor, inténtalo de nuevo más tarde.");
         setLoading(false);
       });
