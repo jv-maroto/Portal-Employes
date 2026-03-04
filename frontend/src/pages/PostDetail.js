@@ -28,7 +28,7 @@ function PostDetail() {
         setError("Hubo un error al obtener el post. Por favor, inténtalo de nuevo más tarde.");
         setLoading(false);
       });
-  }, [id, authTokens]);
+  }, [id]);
 
   useEffect(() => {
     if (containerRef.current) {
