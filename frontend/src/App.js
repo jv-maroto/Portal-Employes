@@ -77,7 +77,7 @@ function App() {
       setIsAuthenticated(false);
       navigate('/login');
     } catch (err) {
-      console.error('Error al cerrar sesión:', err);
+      // Error silenciado en producción
       setIsAuthenticated(false);
     }
   };
