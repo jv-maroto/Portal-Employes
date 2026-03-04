@@ -76,7 +76,7 @@ def register_post_view(request, post_id):
 @permission_classes([IsAdminUser])
 def get_post_views(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    views = PostView.objects.filter(post=post)
+    views = PostView.objects.filter(post=post).select_related('user')
     data = [{'username': view.user.username, 'viewed_at': view.viewed_at}
             for view in views]
     return Response(data)
