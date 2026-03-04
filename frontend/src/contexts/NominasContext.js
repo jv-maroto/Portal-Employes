@@ -69,7 +69,7 @@ export const PayslipProvider = ({ children }) => {
       if (data.length === 0) {
         // Si no hay datos en el año actual, buscar en el año anterior
         const previousYear = selectedYear - 1;
-        console.warn(`No se encontraron nóminas para el año ${selectedYear}. Buscando en ${previousYear}...`);
+        // Sin nóminas en el año seleccionado, buscar en el anterior
         data = await fetchPayrollData(previousYear);
         if (data.length > 0) {
           setSelectedYear(previousYear); // Cambiar al año anterior dinámicamente
