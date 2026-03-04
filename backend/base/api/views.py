@@ -278,12 +278,6 @@ def registrar_vacacion(request):
         # Devuelve los errores de validación
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAdminUser
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from base.models import Vacacion  # Ajusta el nombre del modelo si es diferente
-
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])
 def eliminar_vacacion(request, vacacion_id):
