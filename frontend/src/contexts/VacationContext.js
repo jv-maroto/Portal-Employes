@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import api from "../api";
 
 const VacationContext = createContext();
 
@@ -13,19 +14,8 @@ export const VacationProvider = ({ children }) => {
     useEffect(() => {
         const fetchVacations = async () => {
             try {
-                const response = await fetch("http://localhost:8000/api/vacaciones/listar/", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Error en el fetch: ${response.statusText}`);
-                }
-
-                const data = await response.json();
+                const response = await api.get("vacaciones/listar/");
+                const data = response.data;
                 const filteredVacations = data.filter(
                     (vacation) => new Date(vacation.inicio).getFullYear() === selectedYear
                 );
@@ -56,7 +46,7 @@ export const VacationProvider = ({ children }) => {
                 setDaysOffData(calculateSummary(filteredVacations, "Días Libres", 10));
                 setPermissionsData(calculateSummary(filteredVacations, "Permisos", 5));
             } catch (error) {
-                console.error("Error al obtener datos de vacaciones:", error);
+                // Error silenciado en producción
             }
         };
 
