@@ -77,7 +77,6 @@ export default function VacationsPage() {
                 setDaysOffData(daysOffData);
 
                 const permissionsRanges = filteredVacations.filter((vacation) => vacation.motivo === "Permisos");
-                console.log("Permisos encontrados:", permissionsRanges);
                 const takenPermissions = permissionsRanges.reduce((sum, vacation) => {
                     const startDate = new Date(vacation.inicio);
                     const endDate = new Date(vacation.fin);
