@@ -73,8 +73,7 @@ function VacationForm() {
             // Opcional: recargar la página completa para asegurarse de que todo esté limpio
             window.location.reload();
           } else {
-            const errorResult = await response.json();
-            console.error(errorResult);
+            await response.json();
             alert('Error al registrar la vacación.');
           }
         } catch (error) {
