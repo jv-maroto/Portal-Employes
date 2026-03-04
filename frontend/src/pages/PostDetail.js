@@ -18,7 +18,6 @@ function PostDetail() {
   useEffect(() => {
     api.get(`posts/${id}/`)
       .then(response => {
-        console.log("Datos del post recibidos:", response.data);
         setPost(response.data);
         setLoading(false);
 
