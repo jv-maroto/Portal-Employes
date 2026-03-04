@@ -8,7 +8,6 @@ import pdfIcon from '../static/img/logo_pdf.png'; // Importa el ícono de PDF
 
 function PostDetail() {
   const { id } = useParams();
-  const { authTokens } = useContext(AuthContext);  // Obtenemos los tokens del contexto
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
