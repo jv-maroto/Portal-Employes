@@ -21,7 +21,6 @@ export default function Registro() {
       alert('Las contraseñas no coinciden')
       return
     }
-    console.log('Registration attempt:', formData)
   }
 
   const handleChange = (e) => {
