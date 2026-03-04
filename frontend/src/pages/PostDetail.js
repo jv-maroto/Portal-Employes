@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import api, { BACKEND_URL } from '../api';
 import { BsBoxArrowRight } from 'react-icons/bs';
