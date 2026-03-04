@@ -24,7 +24,7 @@ if not SECRET_KEY:
     raise ImproperlyConfigured("La variable de entorno SECRET_KEY es obligatoria. Configúrala antes de iniciar.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env_bool('DEBUG', default=True)
+DEBUG = get_env_bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', default='localhost,127.0.0.1,sagreracanarias.es,[::1]')
 
