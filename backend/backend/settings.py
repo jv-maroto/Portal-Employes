@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 
 # Configuración simple usando variables de entorno con valores por defecto
 def get_env_bool(key, default=False):
