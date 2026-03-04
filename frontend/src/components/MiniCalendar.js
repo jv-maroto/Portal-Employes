@@ -93,7 +93,7 @@ export function MiniCalendar() {
 
   const handleSelectDate = (date) => {
     // Aquí puedes manejar la selección de fecha, por ejemplo, mostrar eventos para ese día
-    console.log('Fecha seleccionada:', date);
+    // Fecha seleccionada
   };
 
   return (
