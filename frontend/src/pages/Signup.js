@@ -41,9 +41,6 @@ function Signup() {
     //   return;
     // }
 
-    console.log(
-      `Submitted username: ${username}, password: ${password}, email: ${email}`
-    );
   };
 
   return (
