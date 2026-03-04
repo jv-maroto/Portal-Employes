@@ -1,14 +1,13 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api, { BACKEND_URL } from '../api';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import '../static/css/PostDetail.css';  // Importa tu archivo CSS personalizado
+import DOMPurify from 'dompurify';
 import pdfIcon from '../static/img/logo_pdf.png'; // Importa el ícono de PDF
-import AuthContext from '../context/AuthContext';  // Asegúrate de importar tu AuthContext
 
 function PostDetail() {
   const { id } = useParams();
-  const { authTokens } = useContext(AuthContext);  // Obtenemos los tokens del contexto
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,27 +16,19 @@ function PostDetail() {
   const [isOverflowing, setIsOverflowing] = useState(false);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/api/posts/${id}/`)
+    api.get(`posts/${id}/`)
       .then(response => {
-        console.log("Datos del post recibidos:", response.data);
         setPost(response.data);
         setLoading(false);
 
         // Registrar visualización del post
-        axios.post(`http://localhost:8000/api/posts/${id}/view/`, {}, {
-          headers: {
-            Authorization: `Bearer ${authTokens.access}`
-          }
-        })
-        .then(res => console.log(res.data))
-        .catch(err => console.error("Error al registrar la visualización:", err));
+        api.post(`posts/${id}/view/`, {}).catch(() => {});
       })
       .catch(error => {
-        console.error("Hubo un error al obtener el post:", error);
         setError("Hubo un error al obtener el post. Por favor, inténtalo de nuevo más tarde.");
         setLoading(false);
       });
-  }, [id, authTokens]);
+  }, [id]);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -114,10 +105,7 @@ function PostDetail() {
     return <p className="message">No se encontró el post.</p>;
   }
 
-  const pdfUrl = post.pdf ? `http://localhost:8000${post.pdf}` : null;
-  if (pdfUrl) {
-    console.log("PDF URL:", pdfUrl);
-  }
+  const pdfUrl = post.pdf ? `${BACKEND_URL}${post.pdf}` : null;
 
   return (
     <div className="post-detail-page">
@@ -127,7 +115,7 @@ function PostDetail() {
       <div className="post-detail-container" ref={containerRef}>
         <div className="post-detail">
           <h1 className="post-title" style={{ marginTop: isOverflowing ? '30%' : '0' }}>{post.title}</h1>
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }} />
           {pdfUrl && (
             <div className="pdf-link">
               <a href={pdfUrl} target="_blank" rel="noopener noreferrer">

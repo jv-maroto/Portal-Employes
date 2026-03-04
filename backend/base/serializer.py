@@ -29,7 +29,7 @@ def link_callback(uri, rel):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -84,7 +84,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_superuser'] = user.is_superuser
         token['is_staff'] = user.is_staff
         token['username'] = user.username
-        token['userid'] = user.user_id
+        token['userid'] = user.id
 
         return token
 
@@ -164,9 +164,6 @@ class VacacionSerializer(serializers.ModelSerializer):
                 year=year
             )
             dias_existentes = sum([(p.fin - p.inicio).days + 1 for p in permisos])
-
-            print(f"DEBUG permisos año {year}: {[ (p.inicio, p.fin) for p in permisos ]}")
-            print(f"DEBUG días existentes: {dias_existentes}, días nuevos: {dias_nuevos}")
 
             if dias_existentes + dias_nuevos > 5:
                 raise serializers.ValidationError(

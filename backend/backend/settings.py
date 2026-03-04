@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 
 # Configuración simple usando variables de entorno con valores por defecto
 def get_env_bool(key, default=False):
@@ -18,10 +19,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-66+qjm@3f^=5xav_&v!+_iip$=$=9^z6gorjogr4mw-8a%hfrw')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise ImproperlyConfigured("La variable de entorno SECRET_KEY es obligatoria. Configúrala antes de iniciar.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env_bool('DEBUG', default=True)
+DEBUG = get_env_bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', default='localhost,127.0.0.1,sagreracanarias.es,[::1]')
 
@@ -74,7 +77,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = get_env_bool('CORS_ALLOW_ALL_ORIGINS', default=True)
+CORS_ALLOW_ALL_ORIGINS = get_env_bool('CORS_ALLOW_ALL_ORIGINS', default=False)
 CORS_ALLOWED_ORIGINS = get_env_list('CORS_ALLOWED_ORIGINS', default='http://localhost:3000')
 CORS_ALLOW_CREDENTIALS = True 
 CORS_ALLOW_HEADERS = [
@@ -215,9 +218,19 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 }
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.dominioabsoluto.net')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = get_env_bool('EMAIL_USE_TLS', default=True)
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'info@sagreracanarias.es')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'Sagrer4.c4narias')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'info@sagreracanarias.es')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
+
+# Seguridad adicional en producción
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True

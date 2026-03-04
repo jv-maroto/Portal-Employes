@@ -4,7 +4,7 @@ import { Eye, EyeOff, UserIcon, KeyIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import axios from 'axios';
+import api from '../../api';
 
 export default function LoginPage({ onLogin }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,31 +19,23 @@ export default function LoginPage({ onLogin }) {
   e.preventDefault();
 
   try {
-    console.log('Sending login request…', formData);
-    const response = await axios.post('http://localhost:8000/api/login/', {
-      dni: formData.dni,
+    const response = await api.post('token/', {
+      username: formData.dni,
       password: formData.password,
     });
 
-    console.log('Response from backend:', response);
-
     if (response.data.access) {
-      // ↓ Guarda los tokens en localStorage:
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       localStorage.setItem('username', response.data.username);
       localStorage.setItem('first_name', response.data.first_name ?? '');
       localStorage.setItem('last_name', response.data.last_name ?? '');
-      console.log('✅ Token guardado:', localStorage.getItem('accessToken'));
       onLogin();
       navigate('/dashboard');
     } else {
-      // Manejo de error si no hay access
-      console.error('No access token in response');
       setError('No se recibió token de autenticación');
     }
   } catch (err) {
-    console.error('Error during login:', err);
     setError('Credenciales inválidas');
   }
 };

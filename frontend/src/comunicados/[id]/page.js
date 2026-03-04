@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useParams }          from 'react-router-dom';
 import { FileText, Download, Eye, Calendar } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import { Badge }              from '@/components/ui/badge';
 import { Card }               from '@/components/ui/card';
 
@@ -19,17 +20,12 @@ export default function ComunicadoPage() {
    const apiBase = process.env.REACT_APP_API_URL || '';
    const token   = localStorage.getItem('access_token');
 
-   console.log('🔑 Token en localStorage:', token);
-   console.log('📡 Fetching:', `${apiBase}/api/posts/${id}/`);
-
     fetch(`${apiBase}/api/posts/${id}/`, {
       headers: {
-       Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
        Authorization: `Bearer ${token}`,
       },
     })
       .then(res => {
-       console.log('⬅️ Response status:', res.status, res);
         if (!res.ok) throw new Error(`Status ${res.status}`);
         return res.json();
       })
@@ -37,8 +33,7 @@ export default function ComunicadoPage() {
         setComunicado(data);
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Error cargando comunicado:', err);
+      .catch(() => {
         setError('No se pudo cargar el comunicado');
         setLoading(false);
       });
@@ -83,7 +78,7 @@ export default function ComunicadoPage() {
         {/* === Content === */}
         <div 
           className="prose max-w-none py-4"
-          dangerouslySetInnerHTML={{ __html: comunicado.content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comunicado.content) }}
         />
 
         {/* === Footer (PDF) === */}
