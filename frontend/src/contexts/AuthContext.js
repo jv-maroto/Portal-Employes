@@ -71,8 +71,7 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (authTokens) {
-            const decodedToken = jwtDecode(authTokens.access);
-            console.log(decodedToken); // Verifica que `is_superuser` esté presente aquí
+            jwtDecode(authTokens.access);
         }
     }, [authTokens]);
 
