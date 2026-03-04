@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api, { BACKEND_URL } from '../api';
 
 export default function PayrollList() {
   const [years, setYears] = useState([]);
@@ -23,9 +23,6 @@ export default function PayrollList() {
   const token = localStorage.getItem('access_token'); // Obtener el token de acceso
   const username = localStorage.getItem('username');  // Suponiendo que guardas el username en el localStorage
   const refreshToken = localStorage.getItem('refresh_token'); // Obtener el refresh_token
-
-  console.log('Token:', token);
-  console.log('Username:', username);
 
   const months = {
     "01": "Enero",
@@ -46,9 +43,7 @@ export default function PayrollList() {
     const fetchYears = async () => {
       try {
         const token = localStorage.getItem('access_token');
-        const res = await axios.get('http://localhost:8000/api/years-nominas/', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await api.get('years-nominas/');
         setYears(res.data);
         if (res.data.length > 0 && !selectedYear) {
           setSelectedYear(String(res.data[res.data.length - 1]));
@@ -72,9 +67,8 @@ export default function PayrollList() {
   
       try {
         // Intenta hacer la solicitud con el token
-        const response = await axios.get(`http://localhost:8000/api/nominas/${username}/${selectedYear}/`, {
+        const response = await api.get(`nominas/${username}/${selectedYear}/`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
             'X-Username': username
           }
         });
@@ -90,15 +84,14 @@ export default function PayrollList() {
           // Si el token está expirado, intenta renovarlo
           if (refreshToken) {
             try {
-              const refreshResponse = await axios.post('http://localhost:8000/api/token/refresh/', {
+              const refreshResponse = await api.post('token/refresh/', {
                 refresh: refreshToken,
               });
-  
+
               const newAccessToken = refreshResponse.data.access;
-              localStorage.setItem('access_token', newAccessToken); // Actualiza el access_token
-  
-              // Reintenta la solicitud con el nuevo token
-              const retryResponse = await axios.get(`http://localhost:8000/api/nominas/${username}/${selectedYear}/`, {
+              localStorage.setItem('access_token', newAccessToken);
+
+              const retryResponse = await api.get(`nominas/${username}/${selectedYear}/`, {
                 headers: {
                   'Authorization': `Bearer ${newAccessToken}`,
                 }
@@ -126,7 +119,7 @@ export default function PayrollList() {
 
   const handleDownload = (payrollId, month) => {
     // Construir la URL de descarga basada en el payrollId y el mes
-    const downloadUrl = `http://localhost:8000/media/${username}_${month}_${selectedYear}.pdf`;
+    const downloadUrl = `${BACKEND_URL}/media/${username}_${month}_${selectedYear}.pdf`;
     
     // Crear un enlace de descarga
     const link = document.createElement('a');
