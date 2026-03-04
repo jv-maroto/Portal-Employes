@@ -84,7 +84,7 @@ export default function ComunicadoPage() {
         {/* === Content === */}
         <div 
           className="prose max-w-none py-4"
-          dangerouslySetInnerHTML={{ __html: comunicado.content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comunicado.content) }}
         />
 
         {/* === Footer (PDF) === */}
