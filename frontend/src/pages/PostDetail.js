@@ -22,9 +22,7 @@ function PostDetail() {
         setLoading(false);
 
         // Registrar visualización del post
-        api.post(`posts/${id}/view/`, {})
-        .then(res => console.log(res.data))
-        .catch(err => console.error("Error al registrar la visualización:", err));
+        api.post(`posts/${id}/view/`, {}).catch(() => {});
       })
       .catch(error => {
         console.error("Hubo un error al obtener el post:", error);
