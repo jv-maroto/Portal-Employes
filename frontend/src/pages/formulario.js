@@ -61,8 +61,6 @@ function VacationForm() {
         });
 
         if (response.ok) {
-            console.log('Vacación registrada correctamente.');
-      
             // Limpiar el formulario después de recibir una respuesta exitosa
             setDni('');
             setMotivo('Vacaciones');
