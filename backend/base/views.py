@@ -39,9 +39,13 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
 class PdfFileViewSet(viewsets.ModelViewSet):
-    queryset = PdfFile.objects.all()
-
     serializer_class = PdfFileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return PdfFile.objects.all()
+        return PdfFile.objects.filter(user=self.request.user)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_profile(request):
