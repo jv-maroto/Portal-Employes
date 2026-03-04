@@ -1,8 +1,11 @@
 import axios from "axios";
 
+export const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000/api/";
+export const BACKEND_URL = API_BASE_URL.replace(/\/api\/?$/, '');
+
 // Crear la instancia de Axios
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000/api/", // Cambia a la URL de tu backend
+  baseURL: API_BASE_URL,
 });
 
 // Interceptor para añadir el token de acceso en las solicitudes
@@ -32,7 +35,7 @@ api.interceptors.response.use(
         try {
           // Intenta refrescar el token
           const response = await axios.post(
-            "http://localhost:8000/api/token/refresh/",
+            `${API_BASE_URL}token/refresh/`,
             {
               refresh: refreshToken,
             }
@@ -62,35 +65,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-// Función para refrescar el token automáticamente cada 25 minutos
-const startTokenRefreshInterval = () => {
-  setInterval(async () => {
-    const refreshToken = localStorage.getItem("refresh_token");
-    if (refreshToken) {
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
-          {
-            refresh: refreshToken,
-          }
-        );
-
-        const { access } = response.data;
-        localStorage.setItem("access_token", access); // Actualiza el token en el almacenamiento local
-        console.log("Token refrescado automáticamente");
-      } catch (error) {
-        console.error("Error al refrescar el token automáticamente:", error);
-        // Opcional: redirige al login si el refresco falla
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
-      }
-    }
-  }, 25 * 60 * 1000); // 25 minutos (1500000 ms) en milisegundos
-};
-
-// Inicia el refresco automático del token al cargar la aplicación
-startTokenRefreshInterval();
 
 export default api;
