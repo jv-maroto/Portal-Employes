@@ -95,7 +95,6 @@ def login_user(request):
 def years_nominas(request):
     anos = PdfFile.objects.filter(user=request.user).values_list(
         'year', flat=True).distinct()
-    print(f"Años encontrados: {list(anos)}")  # Agrega esto para depuración
     return JsonResponse(list(anos), safe=False)
 
 
