@@ -108,8 +108,7 @@ def get_profile(request):
         profile = user.profile
         serializer = ProfileSerializer(profile, many=False)
         return Response(serializer.data)
-    except:
-        # Si no tiene perfil, devolver datos básicos del usuario
+    except Profile.DoesNotExist:
         return Response({
             'username': user.username,
             'is_superuser': user.is_superuser,
