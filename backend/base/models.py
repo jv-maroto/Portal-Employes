@@ -22,7 +22,14 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    dni = models.CharField(max_length=9)
+    dni = models.CharField(
+        max_length=9,
+        validators=[RegexValidator(
+            regex=r'^\d{8}[A-HJ-NP-TV-Z]$',
+            message='El DNI debe tener 8 dígitos seguidos de una letra válida.'
+        )],
+        db_index=True,
+    )
 
     def __str__(self):
         return self.user.username
