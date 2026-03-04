@@ -176,10 +176,9 @@ export default function VacationsPage() {
                         onChange={(e) => setSelectedYear(Number(e.target.value))}
                         className="w-full md:w-48 p-2 border rounded"
                     >
-                        <option value={2025}>2025</option>
-                        <option value={2024}>2024</option>
-                        <option value={2023}>2023</option>
-                        <option value={2022}>2022</option>
+                        {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                            <option key={y} value={y}>{y}</option>
+                        ))}
                     </select>
                 </div>
                 <div className="p-4 space-y-3">
