@@ -77,7 +77,6 @@ function VacationForm() {
             alert('Error al registrar la vacación.');
           }
         } catch (error) {
-          console.error('Error:', error);
           alert('Ocurrió un error al enviar la solicitud.');
         }
       };
