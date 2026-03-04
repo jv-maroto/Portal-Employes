@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api, { BACKEND_URL } from '../api';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import '../static/css/PostDetail.css';  // Importa tu archivo CSS personalizado
+import DOMPurify from 'dompurify';
 import pdfIcon from '../static/img/logo_pdf.png'; // Importa el ícono de PDF
-import AuthContext from '../context/AuthContext';  // Asegúrate de importar tu AuthContext
 
 function PostDetail() {
   const { id } = useParams();
@@ -17,18 +17,14 @@ function PostDetail() {
   const [isOverflowing, setIsOverflowing] = useState(false);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/api/posts/${id}/`)
+    api.get(`posts/${id}/`)
       .then(response => {
         console.log("Datos del post recibidos:", response.data);
         setPost(response.data);
         setLoading(false);
 
         // Registrar visualización del post
-        axios.post(`http://localhost:8000/api/posts/${id}/view/`, {}, {
-          headers: {
-            Authorization: `Bearer ${authTokens.access}`
-          }
-        })
+        api.post(`posts/${id}/view/`, {})
         .then(res => console.log(res.data))
         .catch(err => console.error("Error al registrar la visualización:", err));
       })
@@ -114,7 +110,7 @@ function PostDetail() {
     return <p className="message">No se encontró el post.</p>;
   }
 
-  const pdfUrl = post.pdf ? `http://localhost:8000${post.pdf}` : null;
+  const pdfUrl = post.pdf ? `${BACKEND_URL}${post.pdf}` : null;
   if (pdfUrl) {
     console.log("PDF URL:", pdfUrl);
   }
