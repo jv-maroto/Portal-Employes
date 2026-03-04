@@ -73,9 +73,6 @@ export default function PayrollList() {
           }
         });
   
-        // Muestra en consola lo que devuelve el backend
-        console.log('Nóminas recibidas del backend:', response.data);
-  
         // Si la respuesta es exitosa, actualiza el estado
         setPayrollData(response.data);
       } catch (err) {
