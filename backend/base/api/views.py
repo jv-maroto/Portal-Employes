@@ -53,7 +53,7 @@ def post_detail(request, pk):
 @api_view(['GET', 'POST'])
 def post_list(request):
     if request.method == 'GET':
-        posts = Post.objects.all()
+        posts = Post.objects.all().order_by('-created_at')[:50]
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
