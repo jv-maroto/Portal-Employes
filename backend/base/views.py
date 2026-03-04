@@ -274,6 +274,8 @@ def listar_vacaciones(request):
 @permission_classes([IsAuthenticated])
 def listar_vacaciones_usuario(request, username):
     user = get_object_or_404(User, username=username)
+    if request.user != user and not request.user.is_superuser:
+        return Response({'message': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
     vacaciones = Vacacion.objects.filter(user=user)
     serializer = VacacionSerializer(vacaciones, many=True)
     return Response(serializer.data)
