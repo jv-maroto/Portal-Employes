@@ -71,7 +71,12 @@ def logout_user(request):
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class LoginRateThrottle(AnonRateThrottle):
+    rate = '5/minute'
+
+
 @api_view(['POST'])
+@throttle_classes([LoginRateThrottle])
 def login_user(request):
     username = request.data.get('dni')
     password = request.data.get('password')
