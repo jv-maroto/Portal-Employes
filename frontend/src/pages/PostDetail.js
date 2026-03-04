@@ -106,9 +106,6 @@ function PostDetail() {
   }
 
   const pdfUrl = post.pdf ? `${BACKEND_URL}${post.pdf}` : null;
-  if (pdfUrl) {
-    console.log("PDF URL:", pdfUrl);
-  }
 
   return (
     <div className="post-detail-page">
