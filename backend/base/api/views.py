@@ -211,28 +211,37 @@ def posts_with_views(request):
     return Response(data)
 
 
+ALLOWED_UPLOAD_TYPES = ['application/pdf']
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
+
+
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminUser])
 @parser_classes([MultiPartParser, FormParser])
 def upload_nomina(request):
     """
-    Recibe un PDF, lo guarda y lo procesa.
+    Recibe un PDF, lo guarda y lo procesa. Solo administradores.
     """
     file = request.FILES.get('file')
     year = request.data.get('year')
     month = request.data.get('month')
-    user = request.user
 
     if not file or not year or not month:
         return Response({'error': 'Faltan datos'}, status=400)
 
+    if file.content_type not in ALLOWED_UPLOAD_TYPES:
+        return Response({'error': 'Solo se permiten archivos PDF.'}, status=400)
+
+    if file.size > MAX_UPLOAD_SIZE:
+        return Response({'error': 'El archivo excede el tamaño máximo de 10 MB.'}, status=400)
+
     pdf_file = PdfFile.objects.create(
-        user=user,
+        user=request.user,
         year=year,
         month=month,
         file=file
     )
-    pdf_file.process_pdf_and_save()  # <-- Añade esta línea
+    pdf_file.process_pdf_and_save()
 
     return Response({'message': 'Nómina subida correctamente'})
 
