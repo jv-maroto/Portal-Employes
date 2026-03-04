@@ -33,8 +33,6 @@ export default function LoginPage({ onLogin }) {
       onLogin();
       navigate('/dashboard');
     } else {
-      // Manejo de error si no hay access
-      console.error('No access token in response');
       setError('No se recibió token de autenticación');
     }
   } catch (err) {
