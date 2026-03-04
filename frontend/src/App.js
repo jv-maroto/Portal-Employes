@@ -38,7 +38,7 @@ function App() {
               localStorage.setItem('access_token', response.data.access);
               setIsAuthenticated(true);
             } catch (refreshError) {
-              console.error('Error al refrescar el token:', refreshError);
+              // Error silenciado en producción
               localStorage.removeItem('access_token');
               localStorage.removeItem('refresh_token');
               setIsAuthenticated(false);
