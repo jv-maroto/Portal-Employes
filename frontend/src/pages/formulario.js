@@ -20,7 +20,7 @@ function VacationForm() {
       const canvas = sigPadRef.current.getCanvas();
       const context = canvas.getContext('2d', { willReadFrequently: true });
       if (context) {
-        console.log("Contexto del canvas configurado con willReadFrequently.");
+        // Canvas configurado
       }
     }, []);
 
