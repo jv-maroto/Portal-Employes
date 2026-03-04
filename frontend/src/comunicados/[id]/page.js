@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useParams }          from 'react-router-dom';
 import { FileText, Download, Eye, Calendar } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import { Badge }              from '@/components/ui/badge';
 import { Card }               from '@/components/ui/card';
 
