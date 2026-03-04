@@ -36,7 +36,6 @@ export default function LoginPage({ onLogin }) {
       setError('No se recibió token de autenticación');
     }
   } catch (err) {
-    console.error('Error during login:', err);
     setError('Credenciales inválidas');
   }
 };
