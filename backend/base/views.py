@@ -238,6 +238,29 @@ def get_nominas_by_username_and_year(request, username, year):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def download_nomina(request, username, year, month):
+    """Descarga segura de nómina con verificación de permisos."""
+    user = get_object_or_404(User, username=username)
+    if request.user != user and not request.user.is_superuser:
+        return Response({'message': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
+
+    nomina = PdfFile.objects.filter(user=user, year=year, month=month) \
+        .exclude(file__icontains='vacacion').first()
+    if not nomina or not nomina.file:
+        return Response({'message': 'Nómina no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+    file_path = nomina.file.path
+    if not os.path.exists(file_path):
+        return Response({'message': 'Archivo no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    with open(file_path, 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="nomina_{month}_{year}.pdf"'
+        return response
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def registrar_vacacion(request):
