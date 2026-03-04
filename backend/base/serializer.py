@@ -155,6 +155,11 @@ class VacacionSerializer(serializers.ModelSerializer):
         fin = data.get('fin')
         year = data.get('year') or (inicio.year if inicio else None)
 
+        if inicio and fin and inicio > fin:
+            raise serializers.ValidationError(
+                {'fin': 'La fecha de fin no puede ser anterior a la fecha de inicio.'}
+            )
+
         if motivo == 'Permisos' and inicio and fin and year:
             dias_nuevos = (fin - inicio).days + 1
 
