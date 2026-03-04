@@ -114,17 +114,22 @@ export default function PayrollList() {
   // Ordena las nóminas por mes
   const sortedPayrollData = payrollData.sort((a, b) => parseInt(a.month) - parseInt(b.month));
 
-  const handleDownload = (payrollId, month) => {
-    // Construir la URL de descarga basada en el payrollId y el mes
-    const downloadUrl = `${BACKEND_URL}/media/${username}_${month}_${selectedYear}.pdf`;
-    
-    // Crear un enlace de descarga
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.setAttribute('download', `${payrollId}S_${month}_${selectedYear}.pdf`); // Establecer el nombre del archivo
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async (payrollId, month) => {
+    try {
+      const response = await api.get(`nominas/${username}/${selectedYear}/${month}/download/`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `nomina_${month}_${selectedYear}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setError('Error al descargar la nómina.');
+    }
   };
 
   return (

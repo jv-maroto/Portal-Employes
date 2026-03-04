@@ -15,8 +15,11 @@ except ImportError:
         from rest_framework.response import Response
         return Response({'message': 'Profile endpoint temporarily disabled'})
 
+from base.views import download_nomina
+
 urlpatterns = [
     path('token/', token_view, name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('profile/', profile_view, name='get_profile'),
+    path('nominas/<str:username>/<int:year>/<str:month>/download/', download_nomina, name='download_nomina'),
 ]
