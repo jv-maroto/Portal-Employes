@@ -13,6 +13,7 @@ import { VacationProvider } from './contexts/VacationContext';
 import { PayslipProvider } from './contexts/NominasContext';
 import { PostProvider } from './contexts/PostContext';
 import PrivateRoute from './components/PrivateRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import api from './api';
 import VacacionesAdmin from '@/pages/admin/tablavacaciones';
 import TablaVacaciones from "@/pages/admin/tablavacaciones";
