@@ -20,50 +20,104 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Control de refresco: evita múltiples refreshes simultáneos
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+function onRefreshed(newToken) {
+  refreshSubscribers.forEach((callback) => callback(newToken));
+  refreshSubscribers = [];
+}
+
+function addRefreshSubscriber(callback) {
+  refreshSubscribers.push(callback);
+}
+
+function clearSessionAndRedirect() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("username");
+  localStorage.removeItem("first_name");
+  localStorage.removeItem("last_name");
+  localStorage.removeItem("isAuthenticated");
+  window.location.href = "/login";
+}
+
 // Interceptor para manejar respuestas y errores
 api.interceptors.response.use(
-  (response) => response, // Devuelve la respuesta directamente si es exitosa
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Si el token ha expirado y no hemos intentado refrescar
     if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true; // Evitar bucles infinitos
+      originalRequest._retry = true;
+
+      if (isRefreshing) {
+        // Si ya se está refrescando, esperar a que termine
+        return new Promise((resolve) => {
+          addRefreshSubscriber((newToken) => {
+            originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+            resolve(api.request(originalRequest));
+          });
+        });
+      }
+
       const refreshToken = localStorage.getItem("refresh_token");
+      if (!refreshToken) {
+        clearSessionAndRedirect();
+        return Promise.reject(error);
+      }
 
-      if (refreshToken) {
-        try {
-          // Intenta refrescar el token
-          const response = await axios.post(
-            `${API_BASE_URL}token/refresh/`,
-            {
-              refresh: refreshToken,
-            }
-          );
+      isRefreshing = true;
 
-          const { access } = response.data;
-          localStorage.setItem("access_token", access);
+      try {
+        const response = await axios.post(
+          `${API_BASE_URL}token/refresh/`,
+          { refresh: refreshToken }
+        );
 
-          // Reintenta la solicitud original con el nuevo token
-          originalRequest.headers["Authorization"] = `Bearer ${access}`;
-          return api.request(originalRequest);
-        } catch (refreshError) {
-          // Si falla el refresco, limpia los tokens y redirige al login
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          window.location.href = "/login";
+        const { access, refresh: newRefresh } = response.data;
+        localStorage.setItem("access_token", access);
+        if (newRefresh) {
+          localStorage.setItem("refresh_token", newRefresh);
         }
-      } else {
-        // Si no hay refresh token, limpia y redirige al login
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
+
+        isRefreshing = false;
+        onRefreshed(access);
+
+        originalRequest.headers["Authorization"] = `Bearer ${access}`;
+        return api.request(originalRequest);
+      } catch (refreshError) {
+        isRefreshing = false;
+        refreshSubscribers = [];
+        clearSessionAndRedirect();
+        return Promise.reject(refreshError);
       }
     }
 
-    // Si no es un error 401, rechaza la promesa
     return Promise.reject(error);
   }
 );
+
+// Refresco proactivo: renueva el token antes de que expire
+const REFRESH_INTERVAL = 1000 * 60 * 25; // 25 minutos (token dura 30)
+setInterval(async () => {
+  const refreshToken = localStorage.getItem("refresh_token");
+  const accessToken = localStorage.getItem("access_token");
+  if (!refreshToken || !accessToken) return;
+
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}token/refresh/`,
+      { refresh: refreshToken }
+    );
+    localStorage.setItem("access_token", response.data.access);
+    if (response.data.refresh) {
+      localStorage.setItem("refresh_token", response.data.refresh);
+    }
+  } catch {
+    clearSessionAndRedirect();
+  }
+}, REFRESH_INTERVAL);
 
 export default api;
