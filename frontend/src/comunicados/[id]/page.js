@@ -41,9 +41,9 @@ export default function ComunicadoPage() {
 
   useEffect(() => {
     if (!id) return;
-    const apiBase = process.env.REACT_APP_API_URL || '';
+    const apiBase = (process.env.REACT_APP_API_URL || 'http://localhost:8000/api/').replace(/\/+$/, '');
     const token = localStorage.getItem('access_token');
-    fetch(`${apiBase}/api/posts/${id}/view/`, {
+    fetch(`${apiBase}/posts/${id}/view/`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
