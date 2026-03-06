@@ -27,6 +27,7 @@ const server = http.createServer((req, res) => {
   fs.createReadStream(filePath).pipe(res);
 });
 
-server.listen(3000, () => {
-  console.log('Frontend corriendo en http://localhost:3000');
+const port = process.env.PORT || 3000;
+server.listen(port, '127.0.0.1', () => {
+  console.log(`Frontend corriendo en http://localhost:${port}`);
 });
