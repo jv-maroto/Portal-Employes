@@ -1,60 +1,61 @@
 import React from 'react';
-import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';  // Asegúrate de importar useNavigate
+import { LogOut, Sun } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 export function DashboardHeader() {
-  const navigate = useNavigate();  // Usa el hook useNavigate
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      // Hacer solicitud POST al backend para cerrar sesión
       await api.post('logout/', {});
-
-      // Eliminar token del localStorage
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-
-      // Forzar un "F5" (recarga la página)
-      window.location.reload();  // Esto recargará toda la página
-
-      // Redirigir a la página de login usando useNavigate
-      navigate('/login');  // Cambia la redirección por navigate
+      window.location.reload();
+      navigate('/login');
     } catch (error) {
       // Error silenciado en producción
     }
   }
-  // Obtener el nombre y apellido del usuario del localStorage, si no existen usa el username
+
   const firstName = localStorage.getItem('first_name');
   const lastName = localStorage.getItem('last_name');
   const username = localStorage.getItem('username') || 'Usuario';
-  // Mostrar nombre y apellido si existen, si no, mostrar username
   let displayName = (firstName && firstName.trim())
     ? (lastName && lastName.trim() ? `${firstName} ${lastName}` : firstName)
     : username;
- 
+
+  const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches';
+  const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
   return (
-    <div className="flex items-center justify-end p-4 bg-white dark:bg-gray-800 border-b">
-      <div className="flex items-center gap-4">
-        <div className="text-right">
-          <h1 className="text-2xl font-semibold">{displayName}</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+    <div className="bg-white border-b border-gray-100">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 max-w-7xl mx-auto flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-heading font-semibold text-gray-900">
+            {greeting}, <span className="text-blue-600">{displayName}</span>
+          </h1>
+          <p className="text-sm text-gray-400 mt-0.5 capitalize flex items-center gap-1.5">
+            <Sun className="h-3.5 w-3.5" />
+            {dateStr}
           </p>
         </div>
-        <Avatar>
-          <img src="/logo.png" alt={displayName} className="w-full h-full object-cover" />
-        </Avatar>
-        <Button
-          variant="outline"
-          onClick={handleLogout}
-          className="flex items-center gap-1 ml-4 h-7 px-2 text-xs"
-        >
-          <LogOut className="h-3 w-3" />
-          <span>Salir</span>
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-blue-500/10 flex items-center justify-center">
+            <span className="text-sm font-semibold text-blue-600">{initials}</span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Salir</span>
+          </button>
+        </div>
       </div>
     </div>
   );

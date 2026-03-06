@@ -1,11 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Plus, Calendar, ChevronDown, Palmtree, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import VacationSummary from "../components/vacations/summaries/vacation-summary";
-import DaysOffSummary from "../components/vacations/summaries/days-off-summary";
-import PermisosSummary from "../components/vacations/summaries/permisos-summary";
-// Sidebar import removed as it's not used
 import VacationForm from "../components/vacations/vacation-form";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -19,7 +14,6 @@ export default function VacationsPage() {
     const [daysOffData, setDaysOffData] = useState(null);
     const [permissionsData, setPermissionsData] = useState(null);
 
-    // Hacemos fetchVacations reutilizable para refrescar tras crear
     const fetchVacations = useCallback(async () => {
         try {
             const response = await api.get("vacaciones/listar/");
@@ -30,74 +24,27 @@ export default function VacationsPage() {
             );
             setVacations(filteredVacations);
 
-                const totalVacationDays = 30;
-                const totalDaysOff = 10;
-                const totalPermissions = 5;
+            const totalVacationDays = 30;
+            const totalDaysOff = 10;
+            const totalPermissions = 5;
 
-                const vacationRanges = filteredVacations.filter((vacation) => vacation.motivo === "Vacaciones");
-                const takenVacationDays = vacationRanges.reduce((sum, vacation) => {
-                    const startDate = new Date(vacation.inicio);
-                    const endDate = new Date(vacation.fin);
-                    return sum + Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-                }, 0);
+            const calcDays = (items) => items.reduce((sum, v) => {
+                return sum + Math.ceil((new Date(v.fin) - new Date(v.inicio)) / (1000 * 60 * 60 * 24)) + 1;
+            }, 0);
 
-                const vacationData = {
-                    total: totalVacationDays,
-                    taken: takenVacationDays,
-                    remaining: Math.max(totalVacationDays - takenVacationDays, 0),
-                    nextVacation: vacationRanges.length
-                        ? `Desde ${format(new Date(vacationRanges[0].inicio), "dd/MM/yyyy", { locale: es })} a ${format(
-                              new Date(vacationRanges[0].fin),
-                              "dd/MM/yyyy",
-                              { locale: es }
-                          )}`
-                        : "Ninguna",
-                };
-                setVacationData(vacationData);
+            const vacRanges = filteredVacations.filter(v => v.motivo === "Vacaciones");
+            const takenVac = calcDays(vacRanges);
+            setVacationData({ total: totalVacationDays, taken: takenVac, remaining: Math.max(totalVacationDays - takenVac, 0) });
 
-                const daysOffRanges = filteredVacations.filter((vacation) => vacation.motivo === "Días Libres");
-                const takenDaysOff = daysOffRanges.reduce((sum, vacation) => {
-                    const startDate = new Date(vacation.inicio);
-                    const endDate = new Date(vacation.fin);
-                    return sum + Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-                }, 0);
+            const daysOffRanges = filteredVacations.filter(v => v.motivo === "Días Libres");
+            const takenDO = calcDays(daysOffRanges);
+            setDaysOffData({ total: totalDaysOff, taken: takenDO, remaining: Math.max(totalDaysOff - takenDO, 0) });
 
-                const daysOffData = {
-                    total: totalDaysOff,
-                    taken: takenDaysOff,
-                    remaining: Math.max(totalDaysOff - takenDaysOff, 0),
-                    nextDayOff: daysOffRanges.length
-                        ? `Desde ${format(new Date(daysOffRanges[0].inicio), "dd/MM/yyyy", { locale: es })} a ${format(
-                              new Date(daysOffRanges[0].fin),
-                              "dd/MM/yyyy",
-                              { locale: es }
-                          )}`
-                        : "Ninguna",
-                };
-                setDaysOffData(daysOffData);
-
-                const permissionsRanges = filteredVacations.filter((vacation) => vacation.motivo === "Permisos");
-                const takenPermissions = permissionsRanges.reduce((sum, vacation) => {
-                    const startDate = new Date(vacation.inicio);
-                    const endDate = new Date(vacation.fin);
-                    return sum + Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-                }, 0);
-
-                const permissionsData = {
-                    total: totalPermissions,
-                    taken: takenPermissions,
-                    remaining: Math.max(totalPermissions - takenPermissions, 0),
-                    nextPermission: permissionsRanges.length
-                        ? `Desde ${format(new Date(permissionsRanges[0].inicio), "dd/MM/yyyy", { locale: es })} a ${format(
-                              new Date(permissionsRanges[0].fin),
-                              "dd/MM/yyyy",
-                              { locale: es }
-                          )}`
-                        : "Ninguna",
-                };
-                setPermissionsData(permissionsData);
+            const permRanges = filteredVacations.filter(v => v.motivo === "Permisos");
+            const takenPerm = calcDays(permRanges);
+            setPermissionsData({ total: totalPermissions, taken: takenPerm, remaining: Math.max(totalPermissions - takenPerm, 0) });
         } catch (error) {
-            // Error silenciado en producción
+            // Error silenciado
         }
     }, [selectedYear]);
 
@@ -107,29 +54,20 @@ export default function VacationsPage() {
 
     const getVacationStatus = (startDate, endDate) => {
         const today = new Date();
-        if (endDate < today) {
-            return "Caducada";
-        } else {
-            return "Vigente";
-        }
+        return endDate < today ? "Caducada" : "Vigente";
     };
 
-
-    // Paginación por número de vacaciones (no por mes)
     const [currentPage, setCurrentPage] = useState(0);
-    const pageSize = 7; // Número de vacaciones por página
-    // Ordenar vacaciones por inicio descendente
+    const pageSize = 7;
     const sortedVacations = useMemo(() => {
         return [...vacations].sort((a, b) => new Date(b.inicio) - new Date(a.inicio));
-    }, [vacations])
+    }, [vacations]);
 
-    // Paginación real
     const totalPages = Math.ceil(sortedVacations.length / pageSize);
     const paginatedVacations = useMemo(() => {
         return sortedVacations.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
     }, [sortedVacations, currentPage, pageSize]);
 
-    // Agrupar SOLO las vacaciones de la página actual por mes
     const monthGroups = useMemo(() => {
         const map = new Map();
         paginatedVacations.forEach((v) => {
@@ -142,11 +80,9 @@ export default function VacationsPage() {
             .sort((a, b) => new Date(b.items[0].inicio) - new Date(a.items[0].inicio));
     }, [paginatedVacations]);
 
-    // Si se añade una vacación nueva, ir a la página donde está la más reciente
     useEffect(() => {
         if (sortedVacations.length > 0) {
-            const mostRecentId = sortedVacations[0].id;
-            const idx = sortedVacations.findIndex(v => v.id === mostRecentId);
+            const idx = 0;
             const pageIdx = Math.floor(idx / pageSize);
             if (pageIdx !== currentPage) {
                 setCurrentPage(pageIdx);
@@ -154,111 +90,171 @@ export default function VacationsPage() {
         }
     }, [vacations, sortedVacations, currentPage]);
 
-    // Etiquetas de tipo
-    // Colores más vivos para etiquetas
-    const motivoColor = {
-        "Vacaciones": "bg-emerald-100 text-emerald-700 border border-emerald-300",
-        "Días Libres": "bg-blue-100 text-blue-700 border border-blue-300",
-        "Permisos": "bg-amber-100 text-amber-700 border border-amber-300"
+    const motivoConfig = {
+        "Vacaciones": { color: "bg-blue-50 text-blue-600 border-blue-200", icon: Palmtree },
+        "Días Libres": { color: "bg-emerald-50 text-emerald-600 border-emerald-200", icon: Calendar },
+        "Permisos": { color: "bg-violet-50 text-violet-600 border-violet-200", icon: Clock },
     };
-    const statusColor = {
-        "Vigente": "bg-green-100 text-green-700 border border-green-300",
-        "Caducada": "bg-red-100 text-red-700 border border-red-300"
+    const statusConfig = {
+        "Vigente": "bg-green-50 text-green-600",
+        "Caducada": "bg-gray-100 text-gray-400",
+    };
+
+    const SummaryCard = ({ label, icon: Icon, color, data }) => {
+        if (!data) return null;
+        const pct = data.total > 0 ? (data.taken / data.total) * 100 : 0;
+        return (
+            <div className="bg-white rounded-xl border border-gray-100 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                    <div className={`w-7 h-7 rounded-lg ${color.light} flex items-center justify-center`}>
+                        <Icon className={`h-3.5 w-3.5 ${color.text}`} />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">{label}</span>
+                </div>
+                <div className="flex items-end justify-between mb-2">
+                    <span className="text-2xl font-heading font-bold text-gray-900">{data.remaining}</span>
+                    <span className="text-xs text-gray-400">de {data.total} días</span>
+                </div>
+                <div className={`h-1.5 rounded-full ${color.track}`}>
+                    <div className={`h-full rounded-full ${color.bg} transition-all duration-500`} style={{ width: `${Math.min(pct, 100)}%` }} />
+                </div>
+                <p className="text-xs text-gray-400 mt-2">{data.taken} días utilizados</p>
+            </div>
+        );
     };
 
     return (
-        <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
-            {/* Panel meses paginados */}
-            <div className="w-full md:w-2/3 lg:w-3/4 bg-white shadow-sm">
-                <div className="sticky top-0 z-10 bg-white border-b p-4">
-                    <select
-                        value={selectedYear}
-                        onChange={(e) => setSelectedYear(Number(e.target.value))}
-                        className="w-full md:w-48 p-2 border rounded"
-                    >
-                        {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(y => (
-                            <option key={y} value={y}>{y}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className="p-4 space-y-3">
-                    {monthGroups.map(({ month, items }) => (
-                        <div key={month} className="mb-2">
-                            <h2 className="text-lg font-semibold mb-2 capitalize">{month}</h2>
-                            <div className="space-y-2">
-                                {items.map((v) => {
-                                    const dias = Math.ceil((new Date(v.fin) - new Date(v.inicio)) / (1000 * 60 * 60 * 24)) + 1;
-                                    const status = getVacationStatus(new Date(v.inicio), new Date(v.fin));
-                                    return (
-                                        <div
-                                            key={v.id}
-                                            className="flex items-center bg-white rounded-xl border border-gray-200 px-6 py-3 mb-1 shadow-sm"
-                                        >
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-semibold text-base text-gray-800">
-                                                        {format(new Date(v.inicio), "dd MMM", { locale: es })} - {format(new Date(v.fin), "dd MMM", { locale: es })}
-                                                    </span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-2 mt-1">
-                                                    <span className={`px-2 py-0.5 text-xs rounded-lg font-semibold ${statusColor[status]}`}>{status}</span>
-                                                    <span className={`px-2 py-0.5 text-xs rounded-lg font-semibold ${motivoColor[v.motivo] || "bg-gray-200 text-gray-700 border border-gray-300"}`}>{v.motivo}</span>
-                                                </div>
-                                            </div>
-                                            <div className="text-base text-gray-700 font-medium whitespace-nowrap ml-6">{dias} días</div>
-                                        </div>
-                                    );
-                                })}
+        <div className="min-h-screen bg-gray-50/50 p-4 sm:p-6 lg:p-8">
+            <div className="max-w-6xl mx-auto">
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Panel principal - lista */}
+                    <div className="flex-1">
+                        <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                                    <Calendar className="h-5 w-5 text-blue-500" />
+                                </div>
+                                <h1 className="text-lg font-heading font-semibold text-gray-900">Mis Vacaciones</h1>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="relative">
+                                    <select
+                                        value={selectedYear}
+                                        onChange={(e) => setSelectedYear(Number(e.target.value))}
+                                        className="appearance-none bg-white border border-gray-200 rounded-lg px-3 py-2 pr-8 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
+                                    >
+                                        {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                                            <option key={y} value={y}>{y}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                </div>
+                                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <button className="flex items-center gap-1.5 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors">
+                                            <Plus className="h-4 w-4" />
+                                            <span className="hidden sm:inline">Solicitar</span>
+                                        </button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-[90vw] md:max-w-3xl w-full p-4 md:p-6">
+                                        <DialogHeader>
+                                            <DialogTitle className="text-xl font-heading font-bold text-center">Nueva Solicitud</DialogTitle>
+                                        </DialogHeader>
+                                        <VacationForm
+                                            vacations={vacations}
+                                            onCreated={fetchVacations}
+                                            onClose={() => setIsDialogOpen(false)}
+                                        />
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                         </div>
-                    ))}
-                </div>
-                {/* Controles de paginación tipo "comunicados" */}
-                <div className="flex justify-center items-center gap-2 p-4 border-t mt-2">
-                    {Array.from({ length: totalPages }).map((_, idx) => (
-                        <button
-                            key={idx}
-                            onClick={() => setCurrentPage(idx)}
-                            className={`w-8 h-8 rounded-md flex items-center justify-center text-sm font-semibold transition-colors ${
-                                idx === currentPage
-                                    ? "bg-blue-500 text-white shadow"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                            disabled={idx === currentPage}
-                        >
-                            {idx + 1}
-                        </button>
-                    ))}
-                </div>
-            </div>
 
-            {/* Panel lateral: resumen y form */}
-            <div className="w-full md:w-1/3 lg:w-1/4 p-2 border-t md:border-t-0 md:border-l">
-                <div className="flex justify-between items-center mb-2">
-                    <h1 className="text-xl font-bold">Vacaciones</h1>
-                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button size="sm" className="bg-emerald-500 text-white hover:bg-emerald-600">
-                                <Plus className="h-4 w-4" />
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-[90vw] md:max-w-3xl w-full p-4 md:p-6">
-                            <DialogHeader>
-                                <DialogTitle className="text-xl font-bold text-center">Nueva Solicitud</DialogTitle>
-                            </DialogHeader>
-                            <VacationForm 
-                                vacations={vacations} 
-                                onCreated={fetchVacations}
-                                onClose={() => setIsDialogOpen(false)}
-                            />
-                        </DialogContent>
-                    </Dialog>
-                </div>
+                        <div className="bg-white rounded-xl border border-gray-100">
+                            {monthGroups.length === 0 ? (
+                                <div className="p-8 text-center text-gray-400 text-sm">
+                                    No hay registros de vacaciones para este año.
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-gray-50">
+                                    {monthGroups.map(({ month, items }) => (
+                                        <div key={month} className="p-4">
+                                            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 capitalize">{month}</h3>
+                                            <div className="space-y-2">
+                                                {items.map((v) => {
+                                                    const dias = Math.ceil((new Date(v.fin) - new Date(v.inicio)) / (1000 * 60 * 60 * 24)) + 1;
+                                                    const status = getVacationStatus(new Date(v.inicio), new Date(v.fin));
+                                                    const cfg = motivoConfig[v.motivo] || { color: "bg-gray-50 text-gray-600 border-gray-200", icon: Calendar };
+                                                    const Icon = cfg.icon;
+                                                    return (
+                                                        <div key={v.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50/80 transition-colors">
+                                                            <div className={`w-8 h-8 rounded-lg ${cfg.color.split(' ')[0]} flex items-center justify-center flex-shrink-0`}>
+                                                                <Icon className={`h-4 w-4 ${cfg.color.split(' ')[1]}`} />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-sm font-medium text-gray-700">
+                                                                        {format(new Date(v.inicio), "dd MMM", { locale: es })} — {format(new Date(v.fin), "dd MMM", { locale: es })}
+                                                                    </span>
+                                                                    <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${statusConfig[status]}`}>
+                                                                        {status}
+                                                                    </span>
+                                                                </div>
+                                                                <span className={`inline-block text-[11px] font-medium px-1.5 py-0.5 rounded border mt-1 ${cfg.color}`}>
+                                                                    {v.motivo}
+                                                                </span>
+                                                            </div>
+                                                            <span className="text-sm font-medium text-gray-500 whitespace-nowrap">{dias} días</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
-                <div className="space-y-4">
-                    <VacationSummary vacationData={vacationData} />
-                    <DaysOffSummary daysOffData={daysOffData} />
-                    <PermisosSummary permissionsData={permissionsData} />
+                            {totalPages > 1 && (
+                                <div className="flex justify-center items-center gap-1.5 p-4 border-t border-gray-100">
+                                    {Array.from({ length: totalPages }).map((_, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setCurrentPage(idx)}
+                                            className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-medium transition-colors ${
+                                                idx === currentPage
+                                                    ? "bg-blue-500 text-white"
+                                                    : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                            }`}
+                                        >
+                                            {idx + 1}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Panel lateral - resumen */}
+                    <div className="w-full lg:w-72 space-y-3">
+                        <SummaryCard
+                            label="Vacaciones"
+                            icon={Palmtree}
+                            color={{ light: 'bg-blue-50', text: 'text-blue-500', bg: 'bg-blue-500', track: 'bg-blue-100' }}
+                            data={vacationData}
+                        />
+                        <SummaryCard
+                            label="Días Libres"
+                            icon={Calendar}
+                            color={{ light: 'bg-emerald-50', text: 'text-emerald-500', bg: 'bg-emerald-500', track: 'bg-emerald-100' }}
+                            data={daysOffData}
+                        />
+                        <SummaryCard
+                            label="Permisos"
+                            icon={Clock}
+                            color={{ light: 'bg-violet-50', text: 'text-violet-500', bg: 'bg-violet-500', track: 'bg-violet-100' }}
+                            data={permissionsData}
+                        />
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { Home, FileText, Calendar, Newspaper, Menu, Wrench, Settings } from 'lucide-react'
+import { Home, FileText, Calendar, Newspaper, Menu, ChevronLeft, Wrench, Settings, Upload, Eye, TableProperties, X, Shield } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
-import { useViews } from "@/contexts/ViewsContext"; // SOLO el hook
+import { useViews } from "@/contexts/ViewsContext"
 
 const menuItems = [
   { href: '/dashboard', icon: Home, label: 'Inicio' },
   { href: '/nominas', icon: FileText, label: 'Mis Nóminas' },
   { href: '/vacaciones', icon: Calendar, label: 'Vacaciones' },
-  { href: '/comunicados', icon: Newspaper, label: 'Noticias y Comunicados' },
+  { href: '/comunicados', icon: Newspaper, label: 'Comunicados' },
 ]
 
 export default function Sidebar() {
@@ -21,382 +21,185 @@ export default function Sidebar() {
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState('')
 
-  const { showViews, setShowViews } = useViews(); // <-- usa el contexto global
-
+  const { showViews, setShowViews } = useViews()
   const location = useLocation()
   const currentPath = location.pathname
   const navigate = useNavigate()
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768)
-    if (window.innerWidth < 768) {
-      setIsCollapsed(true)
+    const check = () => {
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+      if (mobile) setIsCollapsed(true)
     }
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-      if (window.innerWidth < 768) {
-        setIsCollapsed(true)
-      }
-    }
-    window.addEventListener('resize', checkIfMobile)
-    return () => window.removeEventListener('resize', checkIfMobile)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
-  // Contrae el menú admin al cambiar de sección
-  useEffect(() => {
-    setShowAdminMenu(false)
-  }, [currentPath])
+  useEffect(() => { setShowAdminMenu(false) }, [currentPath])
 
-  // Modal de subida de nóminas
   const NominasModal = () => (
     showNominasModal && (
-      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md relative animate-fade-in">
           <button
-            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-            onClick={() => {
-              setShowNominasModal(false)
-              setSelectedFile(null)
-              setMessage('')
-            }}
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
+            onClick={() => { setShowNominasModal(false); setSelectedFile(null); setMessage('') }}
           >
-            ✕
+            <X className="h-5 w-5" />
           </button>
-          <h2 className="text-lg font-semibold mb-4">Arrastra el PDF aquí</h2>
+          <h2 className="text-lg font-heading font-semibold mb-4">Subir nóminas</h2>
           <div
-            className="border-2 border-dashed border-gray-400 rounded-lg p-8 text-center mb-4 cursor-pointer"
-            onDrop={e => {
-              e.preventDefault()
-              if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                setSelectedFile(e.dataTransfer.files[0])
-              }
-            }}
+            className="border-2 border-dashed border-gray-200 hover:border-blue-300 rounded-xl p-8 text-center mb-4 cursor-pointer transition-colors bg-gray-50/50"
+            onDrop={e => { e.preventDefault(); if (e.dataTransfer.files?.[0]) setSelectedFile(e.dataTransfer.files[0]) }}
             onDragOver={e => e.preventDefault()}
             onClick={() => document.getElementById('fileInput').click()}
           >
             {selectedFile
-              ? <span className="text-green-700">{selectedFile.name}</span>
-              : <span>Arrastra el archivo PDF aquí o haz clic para seleccionar</span>
+              ? <span className="text-emerald-600 font-medium">{selectedFile.name}</span>
+              : <span className="text-gray-400">Arrastra el PDF aquí o haz clic para seleccionar</span>
             }
-            <input
-              id="fileInput"
-              type="file"
-              accept="application/pdf"
-              className="hidden"
-              onChange={e => {
-                if (e.target.files && e.target.files[0]) {
-                  setSelectedFile(e.target.files[0])
-                }
-              }}
+            <input id="fileInput" type="file" accept="application/pdf" className="hidden"
+              onChange={e => { if (e.target.files?.[0]) setSelectedFile(e.target.files[0]) }}
             />
           </div>
-          {/* Selección de año y mes */}
           <div className="flex gap-2 mb-4">
-            <input
-              type="number"
-              min="2000"
-              max="2100"
-              placeholder="Año"
-              className="border rounded px-2 py-1 w-1/2"
-              id="yearInput"
-            />
-            <input
-              type="text"
-              maxLength={2}
-              placeholder="Mes (01-12)"
-              className="border rounded px-2 py-1 w-1/2"
-              id="monthInput"
-            />
+            <input type="number" min="2000" max="2100" placeholder="Año" id="yearInput"
+              className="border border-gray-200 rounded-lg px-3 py-2 w-1/2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500" />
+            <input type="text" maxLength={2} placeholder="Mes (01-12)" id="monthInput"
+              className="border border-gray-200 rounded-lg px-3 py-2 w-1/2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500" />
           </div>
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+            className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-200 disabled:text-gray-400 text-white font-medium rounded-lg transition-all"
             onClick={async () => {
-              if (!selectedFile) return;
-              setUploading(true);
-              setMessage('');
-              const formData = new FormData();
-              formData.append('file', selectedFile);
-              // Obtén año y mes de los inputs
-              const year = document.getElementById('yearInput').value;
-              const month = document.getElementById('monthInput').value;
-              if (!year || !month) {
-                setMessage('Debes indicar año y mes.');
-                setUploading(false);
-                return;
-              }
-              formData.append('year', year);
-              formData.append('month', month);
-
+              if (!selectedFile) return
+              setUploading(true); setMessage('')
+              const formData = new FormData()
+              formData.append('file', selectedFile)
+              const year = document.getElementById('yearInput').value
+              const month = document.getElementById('monthInput').value
+              if (!year || !month) { setMessage('Debes indicar año y mes.'); setUploading(false); return }
+              formData.append('year', year); formData.append('month', month)
               try {
-                const token = localStorage.getItem('access_token');
-                const res = await fetch('/api/upload-nomina/', {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `Bearer ${token}`,
-                  },
-                  body: formData,
-                });
-                if (res.ok) {
-                  setMessage('Archivo subido correctamente.');
-                  setSelectedFile(null);
-                } else {
-                  setMessage('Error al subir el archivo.');
-                }
-              } catch {
-                setMessage('Error al conectar con el servidor.');
-              }
-              setUploading(false);
+                const token = localStorage.getItem('access_token')
+                const res = await fetch('/api/upload-nomina/', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData })
+                if (res.ok) { setMessage('Archivo subido correctamente.'); setSelectedFile(null) }
+                else setMessage('Error al subir el archivo.')
+              } catch { setMessage('Error al conectar con el servidor.') }
+              setUploading(false)
             }}
             disabled={!selectedFile || uploading}
           >
             {uploading ? 'Subiendo...' : 'Subir'}
           </button>
-          {message && (
-            <div className="mt-4 text-center text-sm text-gray-700">{message}</div>
-          )}
+          {message && <div className="mt-3 text-center text-sm text-gray-600">{message}</div>}
         </div>
       </div>
     )
   )
 
   const devMenuItems = [
-    {
-      label: "Subir nóminas",
-      icon: Settings,
-      onClick: () => setShowNominasModal(true),
-      show: true,
-    },
-     {
-    label: "Ver visualizaciones",
-    icon: Settings,
-    onClick: () => {
-      navigate('/comunicados');
-      setShowViews(true); // <-- Fuerza a true SIEMPRE
-      setShowAdminMenu(false);
-    },
-    show: true,
-  },
-    {
-      label: "Ver vacaciones",
-      icon: Settings,
-      onClick: () => navigate('/admin/tablavacaciones'),
-      show: true,
-    },
-  ];
+    { label: "Subir nóminas", icon: Upload, onClick: () => setShowNominasModal(true) },
+    { label: "Ver visualizaciones", icon: Eye, onClick: () => { navigate('/comunicados'); setShowViews(true); setShowAdminMenu(false) } },
+    { label: "Tabla vacaciones", icon: TableProperties, onClick: () => navigate('/admin/tablavacaciones') },
+  ]
 
-  // Opciones admin contextual
-  const adminOptions = () => {
-    if (currentPath === '/nominas') {
-      return (
-        <div
-          onClick={() => setShowNominasModal(true)}
-          className={`flex items-center px-4 py-2 transition-all duration-300 hover:bg-gray-700 rounded text-white cursor-pointer
-            ${isCollapsed && !isMobile ? 'justify-center' : ''}
-          `}
-        >
-          <span className="flex w-6 justify-center">
-            <Settings className="h-5 w-5" />
-          </span>
-          {(!isCollapsed || isMobile) && (
-            <span className="ml-2">Subir nóminas</span>
-          )}
-        </div>
-      );
-    }
-    if (currentPath === '/comunicados') {
-      return (
-        <div
-          onClick={() => setShowViews(v => !v)}
-          className={`flex items-center px-4 py-2 transition-all duration-300 hover:bg-gray-700 rounded text-white cursor-pointer
-            ${isCollapsed && !isMobile ? 'justify-center' : ''}
-          `}
-        >
-          <span className="flex w-6 justify-center">
-            <Settings className="h-5 w-5" />
-          </span>
-          {(!isCollapsed || isMobile) && (
-            <span className="ml-2">Ver visualizaciones</span>
-          )}
-        </div>
-      );
-    }
-    if (currentPath === '/vacaciones') {
-      return (
-        <div
-          onClick={() => navigate('/admin/tablavacaciones')}
-          className={`flex items-center px-4 py-2 transition-all duration-300 hover:bg-gray-700 rounded text-white cursor-pointer
-            ${isCollapsed && !isMobile ? 'justify-center' : ''}
-          `}
-        >
-          <span className="flex w-6 justify-center">
-            <Settings className="h-5 w-5" />
-          </span>
-          {(!isCollapsed || isMobile) && (
-            <span className="ml-2">Ver vacaciones</span>
-          )}
-        </div>
-      );
-    }
-    return null;
-  }
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
-  }
   const NavContent = () => (
-    <>
+    <div className="flex flex-col h-full">
       {/* Header */}
-      {isMobile ? (
-        // Siempre muestra "Portal" en móvil
-        <div className="flex flex-col items-center gap-2 py-4">
-          <span className="text-lg font-semibold text-white mb-2">Portal</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(false)}
-            className="text-white hover:bg-gray-700"
-            title="Expandir menú"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowAdminMenu((v) => !v)}
-            className="text-white hover:bg-gray-700"
-            title="Admin"
-          >
-            <Wrench className="h-5 w-5" />
-          </Button>
-        </div>
-      ) : isCollapsed ? (
-        // PC colapsado: solo iconos, sin texto Portal
-        <div className="flex flex-col items-center gap-2 py-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(false)}
-            className="text-white hover:bg-gray-700"
-            title="Expandir menú"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowAdminMenu((v) => !v)}
-            className="text-white hover:bg-gray-700"
-            title="Admin"
-          >
-            <Wrench className="h-5 w-5" />
-          </Button>
-        </div>
-      ) : (
-        // PC expandido: Portal + iconos en fila
-        <div className="flex items-center justify-between p-4">
-          <span className="text-lg font-semibold text-white transition-all duration-500">
-            Portal
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowAdminMenu((v) => !v)}
-              className="text-white hover:bg-gray-700"
-              title="Admin"
-            >
-              <Wrench className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsCollapsed(true)}
-              className="text-white hover:bg-gray-700"
-              title="Colapsar menú"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
+      <div className={`flex items-center ${isCollapsed && !isMobile ? 'justify-center py-5' : 'justify-between px-4 py-5'}`}>
+        {(!isCollapsed || isMobile) && (
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <Shield className="w-4.5 h-4.5 text-white" />
+            </div>
+            <span className="text-base font-heading font-semibold text-white">Portal</span>
           </div>
+        )}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={`text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5 ${isMobile ? 'hidden' : ''}`}
+        >
+          {isCollapsed ? <Menu className="h-4.5 w-4.5" /> : <ChevronLeft className="h-4.5 w-4.5" />}
+        </button>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-3 mt-2">
+        <div className="space-y-0.5">
+          {(showAdminMenu ? devMenuItems : menuItems).map((item, idx) => {
+            const isActive = !showAdminMenu && currentPath === item.href
+            const Icon = item.icon
+            const Component = showAdminMenu ? 'button' : Link
+            const props = showAdminMenu
+              ? { onClick: item.onClick }
+              : { to: item.href }
+
+            return (
+              <Component
+                key={showAdminMenu ? idx : item.href}
+                {...props}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 no-underline w-full text-left
+                  ${isCollapsed && !isMobile ? 'justify-center px-0' : ''}
+                  ${isActive
+                    ? 'bg-blue-500/15 text-blue-400'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }
+                `}
+              >
+                <Icon className={`h-[18px] w-[18px] flex-shrink-0 ${isActive ? 'text-blue-400' : ''}`} />
+                {(!isCollapsed || isMobile) && (
+                  <span className="text-sm font-medium">{item.label}</span>
+                )}
+              </Component>
+            )
+          })}
         </div>
-      )}
-      {/* Menú contextual como menú completo de desarrollador */}
-      <nav className="mt-4 flex flex-col gap-y-1">
-        {showAdminMenu
-          ? (
-              devMenuItems.filter(opt => opt.show).map((opt, idx) => (
-                <div
-                  key={idx}
-                  onClick={opt.onClick}
-                  className={`flex items-center px-4 py-2 transition-all duration-300 hover:bg-gray-700 rounded text-white cursor-pointer
-                    ${isCollapsed && !isMobile ? 'justify-center' : ''}
-                  `}
-                >
-                  <span className="flex w-6 justify-center">
-                    <opt.icon className="h-5 w-5" />
-                  </span>
-                  {(!isCollapsed || isMobile) && (
-                    <span className="ml-2">{opt.label}</span>
-                  )}
-                </div>
-              ))
-            )
-          : (
-              menuItems.map((item) => {
-                const isActive = currentPath === item.href;
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    className={`flex items-center px-4 py-2 transition-all duration-300 hover:bg-gray-700 rounded text-white no-underline
-                      ${isCollapsed && !isMobile ? 'justify-center' : ''}
-                      ${isActive ? 'bg-gray-700' : ''}
-                    `}
-                  >
-                    <span className="flex w-6 justify-center">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    {(!isCollapsed || isMobile) && (
-                      <span className="ml-2">{item.label}</span>
-                    )}
-                  </Link>
-                );
-              })
-            )
-        }
       </nav>
-    </>
+
+      {/* Admin toggle - footer */}
+      <div className="px-3 pb-4 mt-auto">
+        <div className="border-t border-white/10 pt-3">
+          <button
+            onClick={() => setShowAdminMenu(v => !v)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 w-full
+              ${isCollapsed && !isMobile ? 'justify-center px-0' : ''}
+              ${showAdminMenu ? 'text-amber-400 bg-amber-400/10' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}
+            `}
+          >
+            <Wrench className="h-[18px] w-[18px] flex-shrink-0" />
+            {(!isCollapsed || isMobile) && (
+              <span className="text-sm font-medium">Admin</span>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
   )
-  // Versión móvil con Sheet
+
   if (isMobile) {
     return (
       <>
         <NominasModal />
         <Sheet>
           <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="fixed left-4 top-4 z-50 md:hidden hover:bg-gray-700"
-            >
-              <Menu className="h-6 w-6" />
+            <Button variant="ghost" size="icon" className="fixed left-4 top-4 z-50 md:hidden bg-white shadow-md hover:bg-gray-50 rounded-lg">
+              <Menu className="h-5 w-5 text-gray-700" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0 bg-gray-800 border-gray-700">
+          <SheetContent side="left" className="w-64 p-0 bg-[hsl(220,25%,14%)] border-none">
             <NavContent />
           </SheetContent>
         </Sheet>
       </>
-    );
+    )
   }
 
-  // Versión desktop
   return (
-    <div
-      className={`hidden md:block h-screen bg-gray-800 transition-all duration-500 ease-in-out overflow-hidden
-        ${isCollapsed ? 'w-16' : 'w-64'}
-      `}
-    >
+    <div className={`hidden md:flex flex-col h-screen bg-[hsl(220,25%,14%)] transition-all duration-300 ease-in-out overflow-hidden
+      ${isCollapsed ? 'w-[60px]' : 'w-60'}
+    `}>
       <NominasModal />
       <NavContent />
     </div>

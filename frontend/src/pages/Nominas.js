@@ -1,48 +1,26 @@
 import { useState, useEffect } from 'react';
-import { Download, Calendar, FileText, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Download, FileText, Loader2, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
-import api, { BACKEND_URL } from '../api';
+import api from '../api';
 
 export default function PayrollList() {
   const [years, setYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState('');
-  const [payrollData, setPayrollData] = useState([]); // State para almacenar las nóminas
-  const [downloadingId] = useState(null);
-  const [error, setError] = useState(null); // State para manejar errores
+  const [payrollData, setPayrollData] = useState([]);
+  const [downloadingId, setDownloadingId] = useState(null);
+  const [error, setError] = useState(null);
 
-  const token = localStorage.getItem('access_token'); // Obtener el token de acceso
-  const username = localStorage.getItem('username');  // Suponiendo que guardas el username en el localStorage
-  const refreshToken = localStorage.getItem('refresh_token'); // Obtener el refresh_token
+  const username = localStorage.getItem('username');
 
   const months = {
-    "01": "Enero",
-    "02": "Febrero",
-    "03": "Marzo",
-    "04": "Abril",
-    "05": "Mayo",
-    "06": "Junio",
-    "07": "Julio",
-    "08": "Agosto",
-    "09": "Septiembre",
-    "10": "Octubre",
-    "11": "Noviembre",
-    "12": "Diciembre"
+    "01": "Enero", "02": "Febrero", "03": "Marzo", "04": "Abril",
+    "05": "Mayo", "06": "Junio", "07": "Julio", "08": "Agosto",
+    "09": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre"
   };
 
   useEffect(() => {
     const fetchYears = async () => {
       try {
-        const token = localStorage.getItem('access_token');
         const res = await api.get('years-nominas/');
         setYears(res.data);
         if (res.data.length > 0 && !selectedYear) {
@@ -57,64 +35,30 @@ export default function PayrollList() {
   }, []);
 
   useEffect(() => {
-    if (!selectedYear) return; // <-- No hagas fetch si no hay año seleccionado
-
+    if (!selectedYear) return;
     const fetchPayrollData = async () => {
-      if (!username || !token) {
-        setError('Usuario no autenticado');
-        return;
-      }
-  
+      if (!username) { setError('Usuario no autenticado'); return; }
       try {
-        // Intenta hacer la solicitud con el token
         const response = await api.get(`nominas/${username}/${selectedYear}/`, {
-          headers: {
-            'X-Username': username
-          }
+          headers: { 'X-Username': username }
         });
-  
-        // Si la respuesta es exitosa, actualiza el estado
         setPayrollData(response.data);
+        setError(null);
       } catch (err) {
-        // Error silenciado en producción
-        if (err.response && err.response.status === 401) {
-          // Si el token está expirado, intenta renovarlo
-          if (refreshToken) {
-            try {
-              const refreshResponse = await api.post('token/refresh/', {
-                refresh: refreshToken,
-              });
-
-              const newAccessToken = refreshResponse.data.access;
-              localStorage.setItem('access_token', newAccessToken);
-
-              const retryResponse = await api.get(`nominas/${username}/${selectedYear}/`, {
-                headers: {
-                  'Authorization': `Bearer ${newAccessToken}`,
-                }
-              });
-  
-              setPayrollData(retryResponse.data); // Actualiza nóminas
-            } catch (refreshError) {
-              // Error silenciado en producción
-              setError('No se pudo renovar el token. Inicia sesión nuevamente.');
-            }
-          } else {
-            setError('Usuario no autenticado');
-          }
+        if (err.response?.status === 401) {
+          setError('Sesión expirada. Recargue la página.');
         } else {
           setError('No se pudieron obtener las nóminas.');
         }
       }
     };
-  
     fetchPayrollData();
-  }, [selectedYear, token, username, refreshToken]);
+  }, [selectedYear, username]);
 
-  // Ordena las nóminas por mes
   const sortedPayrollData = payrollData.sort((a, b) => parseInt(a.month) - parseInt(b.month));
 
   const handleDownload = async (payrollId, month) => {
+    setDownloadingId(payrollId);
     try {
       const response = await api.get(`nominas/${username}/${selectedYear}/${month}/download/`, {
         responseType: 'blob',
@@ -129,110 +73,93 @@ export default function PayrollList() {
       window.URL.revokeObjectURL(url);
     } catch {
       setError('Error al descargar la nómina.');
+    } finally {
+      setDownloadingId(null);
     }
   };
 
   return (
-    <TooltipProvider>
-      <div
-        className="min-h-screen  overflow-hidden bg-gray-50"
-        style={{ height: "100vh" }}
-      >
-        <Card className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
+    <div className="min-h-screen bg-gray-50/50 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
               <FileText className="h-5 w-5 text-blue-500" />
-              Mis Nóminas
-            </CardTitle>
-            <Select
-              value={selectedYear}
-              onValueChange={setSelectedYear}
-            >
-              <SelectTrigger className="w-[180px]">
-                <Calendar className="mr-2 h-4 w-4 text-blue-500" />
-                <SelectValue placeholder="Seleccionar año" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {years.map(year => (
-                  <SelectItem key={year} value={String(year)}>{year}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardHeader>
-          <CardContent>
-            {error && <div className="text-red-500 text-center">{error}</div>}
-            <div className="flex flex-col items-center w-full" style={{ height: "calc(100vh - 120px)" }}>
-              <div
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full custom-scroll"
-                style={{
-                  maxHeight: "100%",
-                  overflowY: "auto",
-                  overflowX: "hidden",
-                  background: "white",
-                  borderRadius: "1rem",
-                  boxShadow: "0 2px 8px #0001",
-                  padding: "2rem", // Opcional: más espacio alrededor
-                }}
-              >
-                {/* Nóminas reales */}
-                {sortedPayrollData?.map((payroll) => (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    key={payroll.id}
-                    className="flex flex-row items-center justify-between rounded-lg border p-6 hover:shadow-md hover:border-blue-200 transition-all group bg-white h-24"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-blue-50 rounded-full group-hover:bg-blue-100 transition-colors">
-                        <FileText className="h-7 w-7 text-blue-500" />
-                      </div>
-                      <p className="text-lg group-hover:text-blue-600 transition-colors">
-                        {`Nómina del mes de ${months[payroll.month]}`}
-                      </p>
-                    </div>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDownload(payroll.id, payroll.month)}
-                          className="hover:bg-blue-50 hover:text-blue-500 transition-colors"
-                          disabled={downloadingId === payroll.id}
-                        >
-                          {downloadingId === payroll.id ? (
-                            <Loader2 className="h-7 w-7 animate-spin" />
-                          ) : (
-                            <Download className="h-7 w-7" />
-                          )}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Descargar nómina de {months[payroll.month]}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </motion.div>
-                ))}
-
-                {/* Placeholders "Próximamente" */}
-                {Array.from({ length: 12 - sortedPayrollData.length }).map((_, idx) => (
-                  <div
-                    key={`placeholder-${idx}`}
-                    className="flex flex-row items-center justify-between rounded-lg border border-dashed p-6 bg-gray-50 text-gray-400 h-24"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-gray-100 rounded-full">
-                        <FileText className="h-7 w-7" />
-                      </div>
-                      <p className="text-lg font-semibold">Próximamente</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <h1 className="text-lg font-heading font-semibold text-gray-900">Mis Nóminas</h1>
+              <p className="text-sm text-gray-400">Consulta y descarga tus nóminas</p>
+            </div>
+          </div>
+
+          <div className="relative">
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 cursor-pointer"
+            >
+              {years.map(year => (
+                <option key={year} value={String(year)}>{year}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          </div>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-red-600">{error}</div>
+        )}
+
+        {/* Grid de nóminas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          {sortedPayrollData.map((payroll, idx) => (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: idx * 0.03 }}
+              key={payroll.id}
+              className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md hover:border-gray-200 transition-all group cursor-pointer"
+              onClick={() => handleDownload(payroll.id, payroll.month)}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition-colors flex-shrink-0">
+                  <FileText className="h-5 w-5 text-blue-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+                    {months[payroll.month]}
+                  </p>
+                  <p className="text-xs text-gray-400">{selectedYear}</p>
+                </div>
+                <button
+                  className="p-1.5 rounded-lg text-gray-300 group-hover:text-blue-500 group-hover:bg-blue-50 transition-all flex-shrink-0"
+                  disabled={downloadingId === payroll.id}
+                >
+                  {downloadingId === payroll.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          ))}
+
+          {/* Placeholders */}
+          {Array.from({ length: Math.max(0, 12 - sortedPayrollData.length) }).map((_, idx) => (
+            <div
+              key={`ph-${idx}`}
+              className="rounded-xl border border-dashed border-gray-200 p-4 flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
+                <FileText className="h-5 w-5 text-gray-300" />
+              </div>
+              <p className="text-sm text-gray-300 font-medium">Próximamente</p>
+            </div>
+          ))}
+        </div>
       </div>
-    </TooltipProvider>
+    </div>
   );
 }
