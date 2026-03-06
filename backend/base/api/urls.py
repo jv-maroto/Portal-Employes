@@ -34,6 +34,7 @@ urlpatterns = [
     path('posts/<int:post_id>/views/', get_post_views, name='get_post_views'),
     path('posts/<int:post_id>/views-list/', post_views_list, name='post_views_list'),
     path('posts/with-views/', posts_with_views, name='posts_with_views'),
+    path('posts-with-views/', posts_with_views, name='posts_with_views_alias'),
 
     # Nóminas
     path('nominas/<str:username>/<int:year>/', get_nominas_by_username_and_year, name='get_nominas'),
