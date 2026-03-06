@@ -7,7 +7,7 @@ import { MiniCalendar } from '../components/MiniCalendar';
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-gray-50/50 w-full">
+    <div className="min-h-screen bg-background w-full">
       <DashboardHeader />
       <main className="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">

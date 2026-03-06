@@ -23,66 +23,50 @@ export function MiniCalendar() {
           try {
             const nomRes = await api.get(`nominas/${username}/${year}/`);
             nominas = nomRes.data || [];
-          } catch (err) {
-            nominas = [];
-          }
+          } catch (err) { nominas = []; }
         }
 
         const vacEvents = vacations.flatMap(vac => {
           const tipo = vac.motivo === 'Vacaciones' ? 'vacaciones'
             : vac.motivo === 'Días Libres' ? 'dias_libres'
-            : vac.motivo === 'Permisos' ? 'permiso'
-            : null;
+            : vac.motivo === 'Permisos' ? 'permiso' : null;
           if (!tipo) return [];
           const start = new Date(vac.inicio);
           const end = new Date(vac.fin);
           const days = [];
           for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            days.push({
-              date: d.toISOString().split('T')[0],
-              type: tipo,
-              summary: '',
-            });
+            days.push({ date: d.toISOString().split('T')[0], type: tipo, summary: '' });
           }
           return days;
         });
 
         const comEvents = comunicados.map(com => ({
-          date: com.created_at ? com.created_at.split('T')[0] : null,
-          type: 'comunicado',
-          summary: '',
+          date: com.created_at ? com.created_at.split('T')[0] : null, type: 'comunicado', summary: '',
         })).filter(e => e.date);
 
-        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
         const nominaEvents = nominas.map(nom => {
           let monthStr = nom.month ? nom.month.toString().padStart(2, '0') : '';
           let idx = monthStr.length === 2 && !isNaN(monthStr) ? parseInt(monthStr, 10) - 1 : -1;
           let mes = (idx >= 0 && idx < 12) ? meses[idx] : '';
-          return {
-            date: nom.date ? nom.date.split('T')[0] : `${year}-${monthStr}-01`,
-            type: 'nomina',
-            summary: mes ? `Nómina de ${mes}` : '',
-            rawMonth: nom.month,
-          };
+          return { date: nom.date ? nom.date.split('T')[0] : `${year}-${monthStr}-01`, type: 'nomina', summary: mes ? `Nómina de ${mes}` : '', rawMonth: nom.month };
         });
 
         setEvents([...vacEvents, ...comEvents, ...nominaEvents]);
       } catch (err) {
         setError('No se pudieron cargar los eventos.');
-      } finally {
-        setLoading(false);
-      }
+      } finally { setLoading(false); }
     }
     fetchAllEvents();
   }, []);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5">
-      <h3 className="text-sm font-heading font-semibold text-gray-900 mb-3">Calendario</h3>
+    <div className="bg-card rounded-xl border border-border p-5">
+      <h3 className="text-sm font-heading font-semibold text-card-foreground mb-3">Calendario</h3>
       {loading ? (
-        <div className="text-center text-gray-400 text-sm py-8">Cargando calendario...</div>
+        <div className="text-center text-muted-foreground text-sm py-8">Cargando calendario...</div>
       ) : error ? (
-        <div className="text-center text-red-500 text-sm py-8">{error}</div>
+        <div className="text-center text-destructive text-sm py-8">{error}</div>
       ) : (
         <Calendar events={events} />
       )}

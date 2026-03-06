@@ -14,12 +14,12 @@ export function RecentPayslips() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse">
-        <div className="h-5 bg-gray-100 rounded w-1/3 mb-4" />
+      <div className="bg-card rounded-xl border border-border p-5 animate-pulse">
+        <div className="h-5 bg-muted rounded w-1/3 mb-4" />
         <div className="space-y-3">
-          <div className="h-14 bg-gray-50 rounded-lg" />
-          <div className="h-14 bg-gray-50 rounded-lg" />
-          <div className="h-14 bg-gray-50 rounded-lg" />
+          <div className="h-14 bg-muted rounded-lg" />
+          <div className="h-14 bg-muted rounded-lg" />
+          <div className="h-14 bg-muted rounded-lg" />
         </div>
       </div>
     );
@@ -27,8 +27,8 @@ export function RecentPayslips() {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 p-5">
-        <p className="text-center text-red-500 text-sm">{error}</p>
+      <div className="bg-card rounded-xl border border-border p-5">
+        <p className="text-center text-destructive text-sm">{error}</p>
       </div>
     );
   }
@@ -42,23 +42,20 @@ export function RecentPayslips() {
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 3);
 
-  let yearLabel = '';
-  if (recentPayslips.length > 0) {
-    yearLabel = recentPayslips[0].year || '';
-  }
+  let yearLabel = recentPayslips.length > 0 ? recentPayslips[0].year || '' : '';
 
   return (
     <Link to="/nominas" className="block no-underline group">
-      <div className="bg-white rounded-xl border border-gray-100 p-5 transition-all duration-200 group-hover:shadow-md group-hover:border-gray-200">
+      <div className="bg-card rounded-xl border border-border p-5 transition-all duration-200 group-hover:shadow-md group-hover:border-primary/20">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-heading font-semibold text-gray-900">Últimas Nóminas</h3>
-          <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
+          <h3 className="text-sm font-heading font-semibold text-card-foreground">Últimas Nóminas</h3>
+          <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             {yearLabel || new Date().getFullYear()}
           </span>
         </div>
 
         {recentPayslips.length === 0 ? (
-          <p className="text-gray-400 text-sm text-center py-4">No se encontraron nóminas.</p>
+          <p className="text-muted-foreground text-sm text-center py-4">No se encontraron nóminas.</p>
         ) : (
           <div className="space-y-2">
             {recentPayslips.map((payslip, index) => {
@@ -71,17 +68,17 @@ export function RecentPayslips() {
                 mes = months[mesKey] || '';
               }
               return (
-                <div key={index} className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50/80 hover:bg-gray-100/80 transition-colors">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-4 w-4 text-blue-500" />
+                <div key={index} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-700 truncate">
+                    <p className="text-sm font-medium text-card-foreground truncate">
                       {mes && year ? `${mes} ${year}` : mes ? mes : 'Nómina'}
                     </p>
-                    <p className="text-xs text-gray-400">{payslip.date}</p>
+                    <p className="text-xs text-muted-foreground">{payslip.date}</p>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-gray-300 flex-shrink-0" />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
                 </div>
               );
             })}

@@ -24,12 +24,12 @@ export function RecentAnnouncements() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse">
-        <div className="h-5 bg-gray-100 rounded w-2/5 mb-4" />
+      <div className="bg-card rounded-xl border border-border p-5 animate-pulse">
+        <div className="h-5 bg-muted rounded w-2/5 mb-4" />
         <div className="space-y-3">
-          <div className="h-16 bg-gray-50 rounded-lg" />
-          <div className="h-16 bg-gray-50 rounded-lg" />
-          <div className="h-16 bg-gray-50 rounded-lg" />
+          <div className="h-16 bg-muted rounded-lg" />
+          <div className="h-16 bg-muted rounded-lg" />
+          <div className="h-16 bg-muted rounded-lg" />
         </div>
       </div>
     );
@@ -37,47 +37,38 @@ export function RecentAnnouncements() {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 p-5">
-        <p className="text-center text-red-500 text-sm">{error}</p>
+      <div className="bg-card rounded-xl border border-border p-5">
+        <p className="text-center text-destructive text-sm">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5">
+    <div className="bg-card rounded-xl border border-border p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-heading font-semibold text-gray-900">Últimos Comunicados</h3>
-        <Link to="/comunicados" className="text-xs text-blue-500 hover:text-blue-600 font-medium no-underline">
-          Ver todos
-        </Link>
+        <h3 className="text-sm font-heading font-semibold text-card-foreground">Últimos Comunicados</h3>
+        <Link to="/comunicados" className="text-xs text-primary hover:text-primary/80 font-medium no-underline">Ver todos</Link>
       </div>
       {announcements.length === 0 ? (
-        <p className="text-gray-400 text-sm text-center py-4">No hay comunicados recientes.</p>
+        <p className="text-muted-foreground text-sm text-center py-4">No hay comunicados recientes.</p>
       ) : (
         <div className="space-y-2">
           {announcements.map((a, index) => (
-            <Link
-              key={index}
-              to={`/comunicados/${a.id}`}
-              className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors no-underline group/item"
-            >
-              <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Link key={index} to={`/comunicados/${a.id}`}
+              className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors no-underline group/item">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Newspaper className="h-4 w-4 text-amber-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-700 truncate group-hover/item:text-gray-900">
-                  {a.title}
-                </p>
+                <p className="text-sm font-medium text-card-foreground truncate group-hover/item:text-foreground">{a.title}</p>
                 {a.department && (
-                  <span className="inline-block text-[11px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded mt-1">
-                    {a.department}
-                  </span>
+                  <span className="inline-block text-[11px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded mt-1">{a.department}</span>
                 )}
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {a.created_at ? new Date(a.created_at).toLocaleDateString('es-ES') : a.date}
                 </p>
               </div>
-              <ChevronRight className="h-4 w-4 text-gray-300 flex-shrink-0 mt-1" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground/40 flex-shrink-0 mt-1" />
             </Link>
           ))}
         </div>
