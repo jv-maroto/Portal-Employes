@@ -46,6 +46,7 @@ urlpatterns = [
     # Vacaciones
     path('vacaciones/listar/', mis_vacaciones, name='mis_vacaciones'),
     path('vacaciones/todas/', listar_todas_vacaciones, name='listar_todas_vacaciones'),
+    path('todas-vacaciones/', listar_todas_vacaciones, name='todas_vacaciones_alias'),
     path('vacaciones/registrar/', registrar_vacacion, name='registrar_vacacion'),
     path('vacaciones/<int:vacacion_id>/eliminar/', eliminar_vacacion, name='eliminar_vacacion'),
 ]
