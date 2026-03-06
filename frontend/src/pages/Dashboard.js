@@ -6,7 +6,7 @@ import { RecentPayslips } from '../components/RecentPayslips';
 import { MiniCalendar } from '../components/MiniCalendar';
 
 // Nominas import removed as it's not used
-import '../static/css/homepage.css';
+import '../static/css/12/homepage.css';
 
 export default function Dashboard() {
   return (
