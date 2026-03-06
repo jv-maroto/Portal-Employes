@@ -17,10 +17,10 @@ export default function ComunicadoPage() {
   useEffect(() => {
     if (!id) return;
 
-   const apiBase = process.env.REACT_APP_API_URL || '';
+   const apiBase = (process.env.REACT_APP_API_URL || 'http://localhost:8000/api/').replace(/\/+$/, '');
    const token   = localStorage.getItem('access_token');
 
-    fetch(`${apiBase}/api/posts/${id}/`, {
+    fetch(`${apiBase}/posts/${id}/`, {
       headers: {
        Authorization: `Bearer ${token}`,
       },
