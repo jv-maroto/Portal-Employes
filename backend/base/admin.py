@@ -134,8 +134,8 @@ class PostAdmin(admin.ModelAdmin):
 
 
 class PostAdminSite(AdminSite):
-    site_header = 'Sagrera Canarias Administración de Noticias'
-    site_title = 'Sagrera Canarias Administración de Noticias'
+    site_header = 'Portal Empleados - Administración'
+    site_title = 'Portal Empleados - Administración'
     index_title = 'Bienvenido a la administración de posts'
 
 
