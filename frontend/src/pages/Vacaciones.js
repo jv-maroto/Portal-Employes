@@ -100,7 +100,7 @@ export default function VacationsPage() {
 
     return (
         <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-[1400px] mx-auto">
                 <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex-1">
                         <div className="flex items-center justify-between mb-5">
@@ -184,7 +184,7 @@ export default function VacationsPage() {
                         </div>
                     </div>
 
-                    <div className="w-full lg:w-72 space-y-3">
+                    <div className="w-full lg:w-80 flex-shrink-0 space-y-3">
                         <SummaryCard label="Vacaciones" icon={Palmtree} color={{ light:'bg-indigo-500/10', text:'text-indigo-500', bg:'bg-indigo-500', track:'bg-indigo-500/15' }} data={vacationData} />
                         <SummaryCard label="Días Libres" icon={Calendar} color={{ light:'bg-emerald-500/10', text:'text-emerald-500', bg:'bg-emerald-500', track:'bg-emerald-500/15' }} data={daysOffData} />
                         <SummaryCard label="Permisos" icon={Clock} color={{ light:'bg-violet-500/10', text:'text-violet-500', bg:'bg-violet-500', track:'bg-violet-500/15' }} data={permissionsData} />

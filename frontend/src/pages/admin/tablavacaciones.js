@@ -91,7 +91,7 @@ export default function TablaVacaciones() {
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-4">
+      <div className="max-w-[1400px] mx-auto space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

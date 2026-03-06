@@ -51,7 +51,7 @@ export default function CommunicationsList() {
   const paginatedPosts = postsFilteredByTags.slice(startIndex, startIndex + postsPerPage);
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-[1200px] mx-auto">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-5 gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
