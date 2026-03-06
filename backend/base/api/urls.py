@@ -18,12 +18,13 @@ from .views import (
     registrar_vacacion,
     eliminar_vacacion,
 )
-from base.views import download_nomina
+from base.views import download_nomina, logout_user
 
 urlpatterns = [
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('profile/', get_profile, name='get_profile'),
+    path('logout/', logout_user, name='logout'),
 
     # Posts / Comunicados
     path('posts/', post_list, name='post_list'),
@@ -38,6 +39,7 @@ urlpatterns = [
     path('nominas/<str:username>/<int:year>/', get_nominas_by_username_and_year, name='get_nominas'),
     path('nominas/<str:username>/<int:year>/<str:month>/download/', download_nomina, name='download_nomina'),
     path('nominas/years/', years_nominas, name='years_nominas'),
+    path('years-nominas/', years_nominas, name='years_nominas_alias'),
     path('nominas/upload/', upload_nomina, name='upload_nomina'),
 
     # Vacaciones
