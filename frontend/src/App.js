@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import SidebarWrapper from './components/SidebarWrapper';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
@@ -83,11 +83,15 @@ function App() {
     }
   };
 
+  const location = useLocation();
+  const publicRoutes = ['/login', '/recuperar', '/registro'];
+  const isPublicRoute = publicRoutes.includes(location.pathname);
+
   return (
     <ErrorBoundary>
     <ViewsProvider>
       <div className="flex">
-        {isAuthenticated && <SidebarWrapper onLogout={handleLogout} />}
+        {isAuthenticated && !isPublicRoute && <SidebarWrapper onLogout={handleLogout} />}
         <div className="flex-1">
           <Routes>
             <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
