@@ -1,110 +1,93 @@
 import React from 'react';
-import { Link } from "react-router-dom"; // Importa Link
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Download } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { FileText, ChevronRight } from 'lucide-react';
 import { usePayslipContext } from "@/contexts/NominasContext";
 
 export function RecentPayslips() {
   const { payrollData, error, loading } = usePayslipContext();
 
   const months = {
-    "01": "Enero",
-    "02": "Febrero",
-    "03": "Marzo",
-    "04": "Abril",
-    "05": "Mayo",
-    "06": "Junio",
-    "07": "Julio",
-    "08": "Agosto",
-    "09": "Septiembre",
-    "10": "Octubre",
-    "11": "Noviembre",
-    "12": "Diciembre"
+    "01": "Enero", "02": "Febrero", "03": "Marzo", "04": "Abril",
+    "05": "Mayo", "06": "Junio", "07": "Julio", "08": "Agosto",
+    "09": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre"
   };
 
   if (loading) {
-    return <p className="text-center text-gray-500">Cargando nóminas...</p>;
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse">
+        <div className="h-5 bg-gray-100 rounded w-1/3 mb-4" />
+        <div className="space-y-3">
+          <div className="h-14 bg-gray-50 rounded-lg" />
+          <div className="h-14 bg-gray-50 rounded-lg" />
+          <div className="h-14 bg-gray-50 rounded-lg" />
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <p className="text-center text-red-500">{error}</p>;
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 p-5">
+        <p className="text-center text-red-500 text-sm">{error}</p>
+      </div>
+    );
   }
 
-  // Filtrar solo nóminas reales: que el archivo no contenga 'vacacion' ni 'vacaciones' en la ruta o nombre
   const realPayslips = payrollData.filter(p => {
     const file = (p.file || '').toLowerCase();
     return !file.includes('vacacion') && !file.includes('vacaciones');
   });
 
-  // Ordenar y mostrar solo las 3 más recientes
   const recentPayslips = realPayslips
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 3);
 
-  // Determinar el año de las nóminas más recientes (si hay)
   let yearLabel = '';
   if (recentPayslips.length > 0) {
-    // Tomar el año de la nómina más reciente
     yearLabel = recentPayslips[0].year || '';
   }
 
-  if (recentPayslips.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Últimas Nóminas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-gray-100 rounded p-2 text-center text-gray-600 font-semibold mb-2">
-            Nóminas año {new Date().getFullYear()}
-          </div>
-          <p className="text-gray-500 text-center">No se encontraron nóminas disponibles.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <Link to="/nominas" className="block no-underline"> {/* Envuelve el panel en un enlace */}
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-        <CardHeader>
-          <CardTitle>Últimas Nóminas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-gray-100 rounded p-2 text-center text-gray-600 font-semibold mb-2">
-            Nóminas año {yearLabel || new Date().getFullYear()}
-          </div>
-          <div className="space-y-4">
+    <Link to="/nominas" className="block no-underline group">
+      <div className="bg-white rounded-xl border border-gray-100 p-5 transition-all duration-200 group-hover:shadow-md group-hover:border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-heading font-semibold text-gray-900">Últimas Nóminas</h3>
+          <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
+            {yearLabel || new Date().getFullYear()}
+          </span>
+        </div>
+
+        {recentPayslips.length === 0 ? (
+          <p className="text-gray-400 text-sm text-center py-4">No se encontraron nóminas.</p>
+        ) : (
+          <div className="space-y-2">
             {recentPayslips.map((payslip, index) => {
               let mes = '';
               let year = payslip.year || '';
               if (payslip.month) {
-                let mesKey = '';
-                if (typeof payslip.month === 'number') {
-                  mesKey = String(payslip.month).padStart(2, '0');
-                } else if (typeof payslip.month === 'string') {
-                  mesKey = payslip.month.padStart(2, '0');
-                }
+                let mesKey = typeof payslip.month === 'number'
+                  ? String(payslip.month).padStart(2, '0')
+                  : payslip.month.padStart(2, '0');
                 mes = months[mesKey] || '';
               }
               return (
-                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">
-                      {mes && year ? `Nómina de ${mes} ${year}` : mes ? `Nómina de ${mes}` : 'Nómina'}
-                    </p>
-                    <p className="text-sm text-gray-500">{payslip.date}</p>
+                <div key={index} className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50/80 hover:bg-gray-100/80 transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-4 w-4 text-blue-500" />
                   </div>
-                  <Button variant="ghost" size="icon">
-                    <Download className="h-4 w-4" />
-                  </Button>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-700 truncate">
+                      {mes && year ? `${mes} ${year}` : mes ? mes : 'Nómina'}
+                    </p>
+                    <p className="text-xs text-gray-400">{payslip.date}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-gray-300 flex-shrink-0" />
                 </div>
               );
             })}
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </Link>
   );
 }
