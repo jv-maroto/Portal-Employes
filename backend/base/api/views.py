@@ -21,8 +21,20 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_superuser'] = user.is_superuser
         token['is_staff'] = user.is_staff
         token['username'] = user.username
-
         return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = self.user
+        data['username'] = user.username
+        try:
+            profile = user.profile
+            data['first_name'] = profile.first_name or ''
+            data['last_name'] = profile.last_name or ''
+        except Profile.DoesNotExist:
+            data['first_name'] = user.first_name or ''
+            data['last_name'] = user.last_name or ''
+        return data
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
