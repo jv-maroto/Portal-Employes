@@ -11,7 +11,27 @@
 
 Sistema integral de gestion empresarial para empleados. Dashboard centralizado, gestion de nominas, solicitud de vacaciones y comunicados internos.
 
+[**Ver Demo en vivo**](https://portal-employes.onrender.com)
+
 </div>
+
+---
+
+## Demo en vivo
+
+> **Nota**: El servicio gratuito de Render se suspende tras inactividad. La primera carga puede tardar ~30 segundos.
+
+| | URL |
+|---|---|
+| **Frontend** | [portal-employes.onrender.com](https://portal-employes.onrender.com) |
+| **API REST** | [portal-employes-api.onrender.com/api/](https://portal-employes-api.onrender.com/api/) |
+
+### Credenciales de prueba
+
+| Rol | Usuario (DNI) | Contrasena |
+|---|---|---|
+| Administrador | `admin` | `Portal2024!` |
+| Empleado | `12345678Z` | `Demo2024!` |
 
 ---
 
