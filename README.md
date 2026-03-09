@@ -56,6 +56,28 @@ Sistema integral de gestion empresarial para empleados. Dashboard centralizado, 
 
 ---
 
+## Arquitectura
+
+```
+┌─────────────┐       ┌─────────────────┐       ┌──────────────┐
+│   Browser   │◄─────►│     Nginx       │       │  PostgreSQL  │
+│  React SPA  │       │  Reverse Proxy  │       │  (produccion)│
+└─────────────┘       └────────┬────────┘       └──────▲───────┘
+                               │                       │
+                      ┌────────▼────────┐              │
+                      │  Django + DRF   │──────────────┘
+                      │   API REST      │
+                      │  JWT Auth       │
+                      └─────────────────┘
+```
+
+- **Frontend**: React SPA que consume la API REST via Axios con interceptores JWT
+- **Nginx**: Sirve el build estatico de React y hace proxy inverso a Django (`/api/`, `/admin/`)
+- **Backend**: Django REST Framework con autenticacion JWT, procesamiento de PDFs y gestion de archivos
+- **Base de datos**: SQLite3 en desarrollo, PostgreSQL en produccion (via Docker)
+
+---
+
 ## Stack tecnologico
 
 ### Backend
@@ -174,6 +196,21 @@ El frontend en desarrollo hace proxy al backend en `localhost:8000`.
 | Variable | Descripcion | Default |
 |---|---|---|
 | `REACT_APP_API_URL` | URL base de la API | `http://localhost:8000/api/` |
+
+---
+
+## Seguridad
+
+Este proyecto ha pasado por una revision de seguridad que incluye:
+
+- **Credenciales externalizadas**: Todas las claves sensibles (`SECRET_KEY`, contrasenas SMTP, credenciales de base de datos) se gestionan mediante variables de entorno con `.env`, nunca hardcodeadas en el codigo
+- **Sanitizacion de contenido**: Uso de `DOMPurify` para prevenir XSS en contenido HTML renderizado (comunicados)
+- **Autenticacion JWT**: Tokens de acceso con expiracion de 8 horas y refresh tokens de 7 dias, con renovacion automatica
+- **Validacion de archivos**: Procesamiento seguro de PDFs en el backend con extraccion automatica de DNI
+- **Rutas protegidas**: Todas las rutas privadas verifican autenticacion antes de renderizar, con redireccion automatica a login
+- **CORS configurado**: Origenes permitidos definidos explicitamente en produccion
+
+> Ver [PR #3](https://github.com/jv-maroto/Portal-Employes/pull/3) para los detalles de los fixes de seguridad aplicados.
 
 ---
 
