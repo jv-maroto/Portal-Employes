@@ -1,2 +1,0 @@
-# Dependencias adicionales para Docker
-psycopg2-binary==2.9.9

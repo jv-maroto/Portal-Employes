@@ -108,8 +108,8 @@ Portal-Employes/
 │   └── Dockerfile
 │
 ├── docker-compose.yml
-├── init.sql
-└── CLAUDE.md
+├── .env.example
+└── LICENSE
 ```
 
 ---
