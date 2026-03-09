@@ -1,4 +1,4 @@
-# Portal Corp — Portal de Empleados
+# Portal Corp — Employee Portal
 
 <div align="center">
 
@@ -6,56 +6,55 @@
 [![Django](https://img.shields.io/badge/Django-5.0+-092e20?style=flat-square&logo=django&logoColor=white)](https://djangoproject.com)
 [![React](https://img.shields.io/badge/React-18.3+-61dafb?style=flat-square&logo=react&logoColor=black)](https://reactjs.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4+-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ed?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-Sistema integral de gestion empresarial para empleados. Dashboard centralizado, gestion de nominas, solicitud de vacaciones y comunicados internos.
+Full-stack employee management system. Centralized dashboard, payroll management, time-off requests and internal announcements.
 
-[**Ver Demo en vivo**](https://portal-employes.onrender.com)
+[**Live Demo**](https://portal-employes.onrender.com)
 
 </div>
 
 ---
 
-## Demo en vivo
+## Live Demo
 
-> **Nota**: El servicio gratuito de Render se suspende tras inactividad. La primera carga puede tardar ~30 segundos.
+> **Note**: Free Render services spin down after inactivity. First load may take ~30 seconds.
 
 | | URL |
 |---|---|
 | **Frontend** | [portal-employes.onrender.com](https://portal-employes.onrender.com) |
 | **API REST** | [portal-employes-api.onrender.com/api/](https://portal-employes-api.onrender.com/api/) |
 
-### Credenciales de prueba
+### Test Credentials
 
-| Rol | Usuario (DNI) | Contrasena |
+| Role | User (DNI) | Password |
 |---|---|---|
-| Administrador | `admin` | `Portal2024!` |
-| Empleado | `12345678Z` | `Demo2024!` |
+| Admin | `admin` | `Portal2024!` |
+| Employee | `12345678Z` | `Demo2024!` |
 
 ---
 
-## Capturas de pantalla
+## Screenshots
 
 <div align="center">
 
-### Modo oscuro
-<img src="docs/screenshots/dashboard-dark.png" alt="Dashboard - Modo oscuro" width="100%">
+### Dark Mode
+<img src="docs/screenshots/dashboard-dark.png" alt="Dashboard - Dark Mode" width="100%">
 
-### Modo claro
-<img src="docs/screenshots/dashboard-light.png" alt="Dashboard - Modo claro" width="100%">
+### Light Mode
+<img src="docs/screenshots/dashboard-light.png" alt="Dashboard - Light Mode" width="100%">
 
 <details>
-<summary><strong>Ver mas capturas</strong></summary>
+<summary><strong>More screenshots</strong></summary>
 
-#### Nominas
-<img src="docs/screenshots/nominas.png" alt="Gestion de Nominas" width="100%">
+#### Payroll
+<img src="docs/screenshots/nominas.png" alt="Payroll Management" width="100%">
 
-#### Vacaciones
-<img src="docs/screenshots/vacaciones.png" alt="Gestion de Vacaciones" width="100%">
+#### Time Off
+<img src="docs/screenshots/vacaciones.png" alt="Time Off Management" width="100%">
 
-#### Comunicados
-<img src="docs/screenshots/comunicados.png" alt="Comunicados Empresariales" width="100%">
+#### Announcements
+<img src="docs/screenshots/comunicados.png" alt="Company Announcements" width="100%">
 
 </details>
 
@@ -63,20 +62,20 @@ Sistema integral de gestion empresarial para empleados. Dashboard centralizado, 
 
 ---
 
-## Funcionalidades
+## Features
 
-| Modulo | Descripcion |
+| Module | Description |
 |---|---|
-| **Dashboard** | Panel centralizado con resumen de ausencias, calendario interactivo con eventos, ultimas nominas y comunicados recientes |
-| **Nominas** | Consulta y descarga de nominas en PDF, organizadas por mes y ano con selector de periodo |
-| **Vacaciones** | Solicitud de vacaciones, dias libres y permisos con calendario visual, resumen de dias disponibles y seguimiento de estado |
-| **Comunicados** | Listado de comunicados internos por departamento con filtros, paginacion y descarga de documentos adjuntos |
-| **Administracion** | Tabla de gestion de ausencias del personal con busqueda, filtros por tipo y ordenacion por columnas |
-| **Modo oscuro** | Toggle de tema claro/oscuro con persistencia en localStorage y deteccion automatica del sistema |
+| **Dashboard** | Centralized panel with absence summary, interactive calendar with events, recent payslips and latest announcements |
+| **Payroll** | View and download payslips in PDF, organized by month and year with period selector |
+| **Time Off** | Request vacation, days off and permits with visual calendar, available days summary and status tracking |
+| **Announcements** | Internal announcements by department with filters, pagination and document downloads |
+| **Admin Panel** | Staff absence management table with search, type filters and column sorting |
+| **Dark Mode** | Light/dark theme toggle with localStorage persistence and automatic system detection |
 
 ---
 
-## Arquitectura
+## Architecture
 
 ```
 ┌─────────────┐       ┌─────────────────┐       ┌──────────────┐
@@ -92,33 +91,34 @@ Sistema integral de gestion empresarial para empleados. Dashboard centralizado, 
                       └─────────────────┘
 ```
 
-- **Frontend**: React SPA desplegada como Static Site en Render, consume la API REST via Axios con interceptores JWT
-- **Backend**: Django REST Framework con Gunicorn, autenticacion JWT, procesamiento de PDFs y gestion de archivos
-- **Base de datos**: PostgreSQL en Render (produccion) / SQLite3 en desarrollo local
-- **Archivos estaticos**: Servidos con WhiteNoise
+- **Frontend**: React SPA deployed as a Static Site on Render, consumes the REST API via Axios with JWT interceptors
+- **Backend**: Django REST Framework with Gunicorn, JWT authentication, PDF processing and file management
+- **Database**: PostgreSQL on Render (production) / SQLite3 for local development
+- **Static files**: Served with WhiteNoise
 
 ---
 
-## Stack tecnologico
+## Tech Stack
 
 ### Backend
-- **Django 5.0** con Django REST Framework
-- **Autenticacion JWT** (`djangorestframework-simplejwt`) con refresh automatico
-- **Base de datos**: SQLite3 (desarrollo) / PostgreSQL (produccion)
-- **Procesamiento PDF**: `pdfplumber` + `PyPDF2` para extraccion de DNI y splitting automatico
-- **CKEditor** para contenido enriquecido en comunicados
+- **Django 5.0** with Django REST Framework
+- **JWT Authentication** (`djangorestframework-simplejwt`) with automatic refresh
+- **Database**: SQLite3 (development) / PostgreSQL (production)
+- **PDF Processing**: `pdfplumber` + `PyPDF2` for DNI extraction and automatic splitting
+- **Gunicorn** as WSGI server with **WhiteNoise** for static files
 
 ### Frontend
-- **React 18** con React Router 6
-- **Tailwind CSS** con sistema de diseno basado en variables CSS (HSL)
-- **Radix UI** para componentes accesibles (Dialog, DropdownMenu, Sheet)
-- **Lucide React** para iconografia
-- **Framer Motion** para animaciones
-- **Axios** con interceptores para gestion automatica de tokens
+- **React 18** with React Router 6
+- **Tailwind CSS** with design system based on CSS variables (HSL)
+- **Radix UI** for accessible components (Dialog, DropdownMenu, Sheet)
+- **Lucide React** for icons
+- **Framer Motion** for animations
+- **Axios** with interceptors for automatic token management
+- **Jest + React Testing Library** (43 tests)
 
 ---
 
-## Estructura del proyecto
+## Project Structure
 
 ```
 Portal-Employes/
@@ -134,19 +134,19 @@ Portal-Employes/
 │   │   ├── api/
 │   │   │   ├── urls.py
 │   │   │   └── views.py
-│   │   └── templates/           # Plantillas PDF para vacaciones
+│   │   └── templates/           # PDF templates for time-off requests
 │   ├── requirements.txt
-│   └── build.sh                 # Script de build para Render
+│   └── build.sh                 # Render build script
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/               # Dashboard, Nominas, Vacaciones, Comunicados
-│   │   ├── components/          # Componentes reutilizables (ui/, auth/, vacations/)
+│   │   ├── pages/               # Dashboard, Payroll, TimeOff, Announcements
+│   │   ├── components/          # Reusable components (ui/, auth/, vacations/)
 │   │   ├── contexts/            # VacationContext, NominasContext, ViewsContext
 │   │   ├── hooks/               # useDarkMode
-│   │   ├── __tests__/           # Tests unitarios (Jest + RTL)
-│   │   ├── api.js               # Axios con interceptores JWT
-│   │   └── index.css            # Sistema de diseno (variables CSS light/dark)
+│   │   ├── __tests__/           # Unit tests (Jest + RTL)
+│   │   ├── api.js               # Axios with JWT interceptors
+│   │   └── index.css            # Design system (CSS variables light/dark)
 │   ├── package.json
 │   └── tailwind.config.js
 │
@@ -156,9 +156,9 @@ Portal-Employes/
 
 ---
 
-## Inicio rapido
+## Getting Started
 
-### Desarrollo local
+### Local Development
 
 ```bash
 git clone https://github.com/jv-maroto/Portal-Employes.git
@@ -167,22 +167,22 @@ cd Portal-Employes
 # Backend
 cd backend
 pip install -r requirements.txt
-export SECRET_KEY="tu-clave-secreta-aqui"
+export SECRET_KEY="your-secret-key-here"
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
 
-# Frontend (en otra terminal)
+# Frontend (in another terminal)
 cd frontend
 npm install
 npm start
 ```
 
-El frontend en desarrollo hace proxy al backend en `localhost:8000`.
+The frontend proxies API requests to `localhost:8000` during development.
 
-### Produccion (Render.com)
+### Production (Render.com)
 
-| Servicio | URL |
+| Service | URL |
 |---|---|
 | Frontend | [portal-employes.onrender.com](https://portal-employes.onrender.com) |
 | API REST | [portal-employes-api.onrender.com/api/](https://portal-employes-api.onrender.com/api/) |
@@ -190,59 +190,61 @@ El frontend en desarrollo hace proxy al backend en `localhost:8000`.
 
 ---
 
-## Autenticacion
+## Authentication
 
-1. Login con usuario/contrasena via `/api/token/`
-2. Se almacenan tokens JWT (access + refresh) en `localStorage`
-3. Axios interceptor anade `Authorization: Bearer <token>` automaticamente
-4. Refresh automatico cada 25 minutos
-5. Respuestas 401 disparan refresh o redireccion a login
+1. Login with username/password via `/api/token/`
+2. JWT tokens (access + refresh) stored in `localStorage`
+3. Axios interceptor adds `Authorization: Bearer <token>` automatically
+4. Proactive refresh every 25 minutes
+5. 401 responses trigger token refresh or redirect to login
 
 ---
 
-## Variables de entorno
+## Environment Variables
 
 ### Backend (`backend/backend/settings.py`)
-| Variable | Descripcion | Default |
+| Variable | Description | Default |
 |---|---|---|
-| `SECRET_KEY` | Clave secreta Django | Generada |
-| `DEBUG` | Modo debug | `True` |
-| `DATABASE_URL` | URL de base de datos | SQLite3 |
-| `EMAIL_HOST_USER` | Email para notificaciones | — |
+| `SECRET_KEY` | Django secret key | Required |
+| `DEBUG` | Debug mode | `False` |
+| `DATABASE_URL` | Database URL | SQLite3 |
+| `ALLOWED_HOSTS` | Allowed hostnames | `localhost` |
+| `CORS_ALLOWED_ORIGINS` | Allowed CORS origins | `http://localhost:3000` |
+| `EMAIL_HOST_USER` | Email for notifications | — |
 
 ### Frontend
-| Variable | Descripcion | Default |
+| Variable | Description | Default |
 |---|---|---|
-| `REACT_APP_API_URL` | URL base de la API | `https://portal-employes-api.onrender.com/api/` |
+| `REACT_APP_API_URL` | API base URL | `https://portal-employes-api.onrender.com/api/` |
 
 ---
 
-## Seguridad
+## Security
 
-Este proyecto ha pasado por una revision de seguridad que incluye:
+This project has undergone a security review that includes:
 
-- **Credenciales externalizadas**: Todas las claves sensibles (`SECRET_KEY`, contrasenas SMTP, credenciales de base de datos) se gestionan mediante variables de entorno con `.env`, nunca hardcodeadas en el codigo
-- **Sanitizacion de contenido**: Uso de `DOMPurify` para prevenir XSS en contenido HTML renderizado (comunicados)
-- **Autenticacion JWT**: Tokens de acceso con expiracion de 30 minutos y refresh tokens de 1 dia, con renovacion automatica
-- **Validacion de archivos**: Procesamiento seguro de PDFs en el backend con extraccion automatica de DNI
-- **Rutas protegidas**: Todas las rutas privadas verifican autenticacion antes de renderizar, con redireccion automatica a login
-- **CORS configurado**: Origenes permitidos definidos explicitamente en produccion
+- **Externalized credentials**: All sensitive keys (`SECRET_KEY`, SMTP passwords, database credentials) managed via environment variables, never hardcoded
+- **Content sanitization**: `DOMPurify` used to prevent XSS in rendered HTML content (announcements)
+- **JWT Authentication**: Access tokens expire in 30 minutes, refresh tokens in 1 day, with automatic renewal
+- **File validation**: Secure PDF processing in the backend with automatic DNI extraction
+- **Protected routes**: All private routes verify authentication before rendering, with automatic redirect to login
+- **CORS configured**: Allowed origins explicitly defined in production
 
-> Ver [PR #3](https://github.com/jv-maroto/Portal-Employes/pull/3) para los detalles de los fixes de seguridad aplicados.
+> See [PR #3](https://github.com/jv-maroto/Portal-Employes/pull/3) for details on the security fixes applied.
 
 ---
 
-## Licencia
+## License
 
-Este proyecto esta bajo la licencia MIT. Ver [LICENSE](LICENSE) para mas detalles.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
 <div align="center">
 
-**Portal Corp** — Sistema de gestion empresarial
+**Portal Corp** — Employee Management System
 
-Desarrollado por [Javier Jose Maroto](https://github.com/jv-maroto)
+Built by [Javier Jose Maroto](https://github.com/jv-maroto)
 
 [![GitHub](https://img.shields.io/badge/GitHub-jv--maroto-181717?style=flat-square&logo=github)](https://github.com/jv-maroto/Portal-Employes)
 
