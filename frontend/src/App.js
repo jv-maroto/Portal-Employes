@@ -7,13 +7,12 @@ import Nominas from './pages/Nominas';
 import Vacation from './pages/Vacaciones';
 import Comunicados from './pages/Comunicados';
 import ComunicadoPage from './comunicados/[id]/page'; // Importa la página de detalle del comunicado
-import Recuperar from './pages/RecuPage';
-import Registrar from './pages/RegisterPage';
 import { VacationProvider } from './contexts/VacationContext';
 import { PayslipProvider } from './contexts/NominasContext';
 import { PostProvider } from './contexts/PostContext';
 import PrivateRoute from './components/PrivateRoute';
 import ErrorBoundary from './components/ErrorBoundary';
+import NotFound from './pages/NotFound';
 import api from './api';
 import VacacionesAdmin from '@/pages/admin/tablavacaciones';
 import TablaVacaciones from "@/pages/admin/tablavacaciones";
@@ -84,7 +83,7 @@ function App() {
   };
 
   const location = useLocation();
-  const publicRoutes = ['/login', '/recuperar', '/registro'];
+  const publicRoutes = ['/login'];
   const isPublicRoute = publicRoutes.includes(location.pathname);
 
   return (
@@ -95,8 +94,6 @@ function App() {
         <div className="flex-1">
           <Routes>
             <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-            <Route path="/recuperar" element={<Recuperar />} />
-            <Route path="/registro" element={<Registrar />} />
             <Route
               path="/dashboard"
               element={
@@ -153,7 +150,8 @@ function App() {
                 <TablaVacaciones />
               </PrivateRoute>
             } />
-            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="*" element={isAuthenticated ? <NotFound /> : <Navigate to="/login" />} />
           </Routes>
         </div>
       </div>

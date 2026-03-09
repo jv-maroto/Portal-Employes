@@ -11,7 +11,13 @@ build/
 __pycache__/
 *.pyo
 *.pyd
+
+# Environment variables
 .env
+.env.local
+.env.*.local
+frontend/.env.local
+frontend/.env.production
 
 # Django
 *.sqlite3
@@ -22,9 +28,12 @@ static/
 # VS Code
 .vscode/
 
-# Otros
-<<<<<<< HEAD
+# OS
 .DS_Store
-=======
-.DS_Store
->>>>>>> 0cf159db561aa8feb281eeeebb5c01752b8330ce
+
+# Docker local config with credentials
+docker-compose.local.yml
+
+# Claude Code
+CLAUDE.md
+.claude/

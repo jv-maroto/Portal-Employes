@@ -94,9 +94,6 @@ export default function LoginPage({ onLogin }) {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label htmlFor="password" className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">Contraseña</label>
-                <a href="/recuperar" className="text-xs text-slate-500 hover:text-blue-400 transition-colors">
-                  ¿Olvidaste tu contraseña?
-                </a>
               </div>
               <div className={`relative flex items-center rounded-lg border transition-all duration-200 ${
                 focusedField === 'password'
