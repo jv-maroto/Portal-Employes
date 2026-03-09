@@ -80,21 +80,22 @@ Sistema integral de gestion empresarial para empleados. Dashboard centralizado, 
 
 ```
 ┌─────────────┐       ┌─────────────────┐       ┌──────────────┐
-│   Browser   │◄─────►│     Nginx       │       │  PostgreSQL  │
-│  React SPA  │       │  Reverse Proxy  │       │  (produccion)│
-└─────────────┘       └────────┬────────┘       └──────▲───────┘
-                               │                       │
-                      ┌────────▼────────┐              │
-                      │  Django + DRF   │──────────────┘
-                      │   API REST      │
-                      │  JWT Auth       │
+│   Browser   │◄─────►│  Render Static  │       │  PostgreSQL  │
+│  React SPA  │       │     Site        │       │   (Render)   │
+└─────────────┘       └─────────────────┘       └──────▲───────┘
+                                                       │
+                      ┌─────────────────┐              │
+                      │  Render Web     │──────────────┘
+                      │  Service        │
+                      │  Django + DRF   │
+                      │  Gunicorn       │
                       └─────────────────┘
 ```
 
-- **Frontend**: React SPA que consume la API REST via Axios con interceptores JWT
-- **Nginx**: Sirve el build estatico de React y hace proxy inverso a Django (`/api/`, `/admin/`)
-- **Backend**: Django REST Framework con autenticacion JWT, procesamiento de PDFs y gestion de archivos
-- **Base de datos**: SQLite3 en desarrollo, PostgreSQL en produccion (via Docker)
+- **Frontend**: React SPA desplegada como Static Site en Render, consume la API REST via Axios con interceptores JWT
+- **Backend**: Django REST Framework con Gunicorn, autenticacion JWT, procesamiento de PDFs y gestion de archivos
+- **Base de datos**: PostgreSQL en Render (produccion) / SQLite3 en desarrollo local
+- **Archivos estaticos**: Servidos con WhiteNoise
 
 ---
 
@@ -135,7 +136,7 @@ Portal-Employes/
 │   │   │   └── views.py
 │   │   └── templates/           # Plantillas PDF para vacaciones
 │   ├── requirements.txt
-│   └── Dockerfile
+│   └── build.sh                 # Script de build para Render
 │
 ├── frontend/
 │   ├── src/
@@ -143,13 +144,12 @@ Portal-Employes/
 │   │   ├── components/          # Componentes reutilizables (ui/, auth/, vacations/)
 │   │   ├── contexts/            # VacationContext, NominasContext, ViewsContext
 │   │   ├── hooks/               # useDarkMode
+│   │   ├── __tests__/           # Tests unitarios (Jest + RTL)
 │   │   ├── api.js               # Axios con interceptores JWT
 │   │   └── index.css            # Sistema de diseno (variables CSS light/dark)
 │   ├── package.json
-│   ├── tailwind.config.js
-│   └── Dockerfile
+│   └── tailwind.config.js
 │
-├── docker-compose.yml
 ├── .env.example
 └── LICENSE
 ```
@@ -158,26 +158,16 @@ Portal-Employes/
 
 ## Inicio rapido
 
-### Con Docker (recomendado)
+### Desarrollo local
 
 ```bash
 git clone https://github.com/jv-maroto/Portal-Employes.git
 cd Portal-Employes
-docker-compose up --build
-```
 
-| Servicio | URL |
-|---|---|
-| Frontend | http://localhost |
-| API REST | http://localhost/api/ |
-| Django Admin | http://localhost/admin/ |
-
-### Desarrollo local
-
-```bash
 # Backend
 cd backend
 pip install -r requirements.txt
+export SECRET_KEY="tu-clave-secreta-aqui"
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
@@ -189,6 +179,14 @@ npm start
 ```
 
 El frontend en desarrollo hace proxy al backend en `localhost:8000`.
+
+### Produccion (Render.com)
+
+| Servicio | URL |
+|---|---|
+| Frontend | [portal-employes.onrender.com](https://portal-employes.onrender.com) |
+| API REST | [portal-employes-api.onrender.com/api/](https://portal-employes-api.onrender.com/api/) |
+| Django Admin | [portal-employes-api.onrender.com/admin/](https://portal-employes-api.onrender.com/admin/) |
 
 ---
 
@@ -215,7 +213,7 @@ El frontend en desarrollo hace proxy al backend en `localhost:8000`.
 ### Frontend
 | Variable | Descripcion | Default |
 |---|---|---|
-| `REACT_APP_API_URL` | URL base de la API | `http://localhost:8000/api/` |
+| `REACT_APP_API_URL` | URL base de la API | `https://portal-employes-api.onrender.com/api/` |
 
 ---
 
@@ -225,7 +223,7 @@ Este proyecto ha pasado por una revision de seguridad que incluye:
 
 - **Credenciales externalizadas**: Todas las claves sensibles (`SECRET_KEY`, contrasenas SMTP, credenciales de base de datos) se gestionan mediante variables de entorno con `.env`, nunca hardcodeadas en el codigo
 - **Sanitizacion de contenido**: Uso de `DOMPurify` para prevenir XSS en contenido HTML renderizado (comunicados)
-- **Autenticacion JWT**: Tokens de acceso con expiracion de 8 horas y refresh tokens de 7 dias, con renovacion automatica
+- **Autenticacion JWT**: Tokens de acceso con expiracion de 30 minutos y refresh tokens de 1 dia, con renovacion automatica
 - **Validacion de archivos**: Procesamiento seguro de PDFs en el backend con extraccion automatica de DNI
 - **Rutas protegidas**: Todas las rutas privadas verifican autenticacion antes de renderizar, con redireccion automatica a login
 - **CORS configurado**: Origenes permitidos definidos explicitamente en produccion
