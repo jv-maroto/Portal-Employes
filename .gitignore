@@ -33,6 +33,20 @@ static/
 
 # Docker local config with credentials
 docker-compose.local.yml
+PORTAINER-STACK*.yml
+frontend-simple.conf
+nginx-local-config.conf
+env.local
+
+# Migration data
+Migracion/
+
+# Deploy scripts
+scripts/
+
+# Root-level package files (only frontend has these)
+/package.json
+/package-lock.json
 
 # Claude Code
 CLAUDE.md
