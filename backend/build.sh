@@ -3,7 +3,6 @@ set -o errexit
 
 pip install -r requirements.txt
 python manage.py collectstatic --noinput
-python manage.py migrate --fake
 python manage.py migrate
 
 # Crear superusuario automáticamente (eliminar después del primer deploy)
