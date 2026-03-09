@@ -55,7 +55,7 @@ export function RecentPayslips() {
         </div>
 
         {recentPayslips.length === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-4">No se encontraron nóminas.</p>
+          <p className="text-muted-foreground text-sm text-center py-4">No hay nóminas disponibles.</p>
         ) : (
           <div className="space-y-2">
             {recentPayslips.map((payslip, index) => {

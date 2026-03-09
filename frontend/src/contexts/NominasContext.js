@@ -47,7 +47,7 @@ export const PayslipProvider = ({ children }) => {
           setError('No se pudo renovar el token. Inicia sesión nuevamente.');
         }
       } else {
-        setError(`No se encontraron datos para el año ${year}.`);
+        setError(null);
       }
       return [];
     }

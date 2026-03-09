@@ -37,7 +37,12 @@ export default function PayrollList() {
         setPayrollData(response.data);
         setError(null);
       } catch (err) {
-        setError(err.response?.status === 401 ? 'Sesión expirada.' : 'No se pudieron obtener las nóminas.');
+        if (err.response?.status === 401) {
+          setError('Sesión expirada.');
+        } else {
+          setPayrollData([]);
+          setError(null);
+        }
       }
     };
     fetchPayrollData();

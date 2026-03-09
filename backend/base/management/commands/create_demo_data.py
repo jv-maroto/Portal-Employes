@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from base.models import Profile, Post, PostView, Vacacion
+from base.models import Profile, Post, PostView, Vacacion, PdfFile
 from datetime import date, timedelta
-import random
 
 
 class Command(BaseCommand):
@@ -162,10 +161,24 @@ class Command(BaseCommand):
         for vac_data in vacaciones_data:
             Vacacion.objects.create(**vac_data)
 
+        # --- NÓMINAS FICTICIAS ---
+        meses_nomina = [
+            ('01', 2026), ('02', 2026),
+            ('10', 2025), ('11', 2025), ('12', 2025),
+        ]
+        for mes, anio in meses_nomina:
+            PdfFile.objects.create(
+                user=demo,
+                year=anio,
+                month=mes,
+                file=f'demo/12345678Z_{mes}_{anio}.pdf',
+            )
+
         self.stdout.write(self.style.SUCCESS(
             'Datos de demo creados:\n'
             '  - Usuario demo: 12345678Z / Demo2024!\n'
             '  - 4 comunicados\n'
             '  - 4 solicitudes de vacaciones\n'
+            '  - 5 nóminas ficticias\n'
             '  - Perfiles creados'
         ))
